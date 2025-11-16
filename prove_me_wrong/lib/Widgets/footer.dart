@@ -38,7 +38,7 @@ class _FooterState extends State<Footer> {
               onTap: () => setState(() => selectedIndex = index),
               child: AnimatedContainer(
                 height: 36,
-                duration: Duration(milliseconds: 500),
+                duration: Duration(milliseconds: 300),
                 curve: Curves.easeInOut,
                 padding: EdgeInsets.symmetric(horizontal: isSelected ? 16 : 0),
                 decoration: isSelected
