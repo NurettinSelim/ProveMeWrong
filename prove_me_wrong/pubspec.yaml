@@ -76,14 +76,14 @@ flutter:
   fonts:
   - family: Azer29LT
     fonts:
-      - asset: assets/fonts/29lt_azer_regular.ttf
+      - asset: lib/assets/fonts/29lt_azer_regular.ttf
   - family: SpaceMono
     fonts:
-      - asset: assets/fonts/SpaceMono-Regular.ttf
+      - asset: lib/assets/fonts/SpaceMono-Regular.ttf
 
   - family: HectorExtenda40
     fonts:
-      - asset: assets/fonts/extenda_40_hector.ttf
+      - asset: lib/assets/fonts/extenda_40_hector.ttf
 
 
   #   - family: Schyler
