@@ -19,59 +19,64 @@ class _FooterState extends State<Footer> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 24.0, left: 10, right: 10),
-      child: Container(
-        height: 60,
-        decoration: BoxDecoration(
-          color: AppColors.onPrimary,
-          borderRadius: BorderRadius.circular(6),
-          border: Border.all(color: AppColors.secondary),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: List.generate(items.length, (index) {
-            final item = items[index];
-            bool isSelected = selectedIndex == index;
+    return Container(
+      height: 60,
+      decoration: BoxDecoration(
+        color: AppColors.onPrimary,
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: AppColors.secondary),
+        boxShadow: [
+          BoxShadow(
+            color: const Color.fromARGB(255, 41, 41, 41),
+            blurRadius: 20,
+            spreadRadius: 0,
+            offset: Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: List.generate(items.length, (index) {
+          final item = items[index];
+          bool isSelected = selectedIndex == index;
 
-            return GestureDetector(
-              onTap: () => setState(() => selectedIndex = index),
-              child: AnimatedContainer(
-                height: 36,
-                duration: Duration(milliseconds: 300),
-                curve: Curves.easeInOut,
-                padding: EdgeInsets.symmetric(horizontal: isSelected ? 16 : 0),
-                decoration: isSelected
-                    ? BoxDecoration(
-                        color: AppColors.tertiary,
-                        borderRadius: BorderRadius.circular(20),
-                      )
-                    : null,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      item["icon"] as IconData,
-                      size: 24,
-                      color: isSelected
-                          ? AppColors.primaryContainer
-                          : Colors.black,
-                    ),
-                    if (isSelected) SizedBox(width: 6),
-                    if (isSelected)
-                      Text(
-                        item["label"] as String,
-                        style: TextStyle(
-                          color: AppColors.primaryContainer,
-                          fontWeight: FontWeight.bold,
-                        ),
+          return GestureDetector(
+            onTap: () => setState(() => selectedIndex = index),
+            child: AnimatedContainer(
+              height: 36,
+              duration: Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+              padding: EdgeInsets.symmetric(horizontal: isSelected ? 16 : 0),
+              decoration: isSelected
+                  ? BoxDecoration(
+                      color: AppColors.tertiary,
+                      borderRadius: BorderRadius.circular(20),
+                    )
+                  : null,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    item["icon"] as IconData,
+                    size: 24,
+                    color: isSelected
+                        ? AppColors.primaryContainer
+                        : Colors.black,
+                  ),
+                  if (isSelected) SizedBox(width: 6),
+                  if (isSelected)
+                    Text(
+                      item["label"] as String,
+                      style: TextStyle(
+                        color: AppColors.primaryContainer,
+                        fontWeight: FontWeight.bold,
                       ),
-                  ],
-                ),
+                    ),
+                ],
               ),
-            );
-          }),
-        ),
+            ),
+          );
+        }),
       ),
     );
   }
