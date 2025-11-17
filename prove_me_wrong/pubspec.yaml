@@ -77,14 +77,9 @@ flutter:
   - family: Azer29LT
     fonts:
       - asset: assets/fonts/29lt_azer_regular.ttf
-      - asset: assets/fonts/29lt_azer_bold.ttf
-        weight: 700
-
   - family: SpaceMono
     fonts:
       - asset: assets/fonts/SpaceMono-Regular.ttf
-      - asset: assets/fonts/SpaceMono-Bold.ttf
-        weight: 700
 
   - family: HectorExtenda40
     fonts:
