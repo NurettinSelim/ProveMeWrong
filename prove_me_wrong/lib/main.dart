@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prove_me_wrong/Screens/home_screen.dart';
 import 'package:prove_me_wrong/Widgets/footer.dart';
 import 'package:prove_me_wrong/core/theme/app_theme.dart';
 
@@ -13,7 +14,12 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.onPrimary,
-      bottomNavigationBar: Footer(),
+      body: Stack(
+        children: [
+          Positioned.fill(child: HomeScreen()),
+          Positioned(left: 50, right: 50, bottom: 24, child: Footer()),
+        ],
+      ),
     );
   }
 }
