@@ -1,24 +1,35 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prove_me_wrong/core/data/screens_data.dart';
 import 'package:prove_me_wrong/core/theme/app_theme.dart';
 
-class Footer extends StatefulWidget {
+class Footer extends ConsumerStatefulWidget {
   const Footer({super.key});
 
   @override
-  State<Footer> createState() => _FooterState();
+  ConsumerState<Footer> createState() => _FooterState();
 }
 
-class _FooterState extends State<Footer> {
+class _FooterState extends ConsumerState<Footer> {
   int selectedIndex = 0;
 
   final items = [
-    {"icon": Icons.home, "label": "Main Page"},
-    {"icon": Icons.chat_bubble_outline, "label": "Rooms"},
+    {
+      "icon": Icons.home,
+      "label": "Main Page",
+      "targetScreen": Screens.homeScreen,
+    },
+    {
+      "icon": Icons.chat_bubble_outline,
+      "label": "Rooms",
+      "targetScreen": Screens.roomsScreen,
+    },
     {"icon": Icons.add, "label": "Create Room"},
   ];
 
   @override
   Widget build(BuildContext context) {
+    final screenNotifier = ref.read(screenProvider.notifier);
     return Container(
       height: 60,
       decoration: BoxDecoration(
@@ -37,11 +48,16 @@ class _FooterState extends State<Footer> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: List.generate(items.length, (index) {
-          final item = items[index];
+          final Map item = items[index];
           bool isSelected = selectedIndex == index;
 
           return GestureDetector(
-            onTap: () => setState(() => selectedIndex = index),
+            onTap: () => setState(() {
+              selectedIndex = index;
+              if (item["targetScreen"] != null) {
+                screenNotifier.state = item["targetScreen"];
+              }
+            }),
             child: AnimatedContainer(
               height: 36,
               duration: Duration(milliseconds: 300),
