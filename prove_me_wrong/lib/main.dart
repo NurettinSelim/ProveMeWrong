@@ -5,8 +5,12 @@ import 'package:prove_me_wrong/Screens/rooms_screen.dart';
 import 'package:prove_me_wrong/Widgets/footer.dart';
 import 'package:prove_me_wrong/core/data/screens_data.dart';
 import 'package:prove_me_wrong/core/theme/app_theme.dart';
+import 'firebase_options.dart';
+import 'package:firebase_core/firebase_core.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const ProviderScope(child: MaterialApp(home: App())));
 }
 
