@@ -17,10 +17,7 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
-      );
+      return web;
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
@@ -54,6 +51,7 @@ class DefaultFirebaseOptions {
     appId: '1:270828091134:android:e1e1be3046ed850b5257af',
     messagingSenderId: '270828091134',
     projectId: 'prove-me-wrong-bf764',
+    databaseURL: 'https://prove-me-wrong-bf764-default-rtdb.europe-west1.firebasedatabase.app',
     storageBucket: 'prove-me-wrong-bf764.firebasestorage.app',
   );
 
@@ -62,7 +60,20 @@ class DefaultFirebaseOptions {
     appId: '1:270828091134:ios:9f8263e83416d76c5257af',
     messagingSenderId: '270828091134',
     projectId: 'prove-me-wrong-bf764',
+    databaseURL: 'https://prove-me-wrong-bf764-default-rtdb.europe-west1.firebasedatabase.app',
     storageBucket: 'prove-me-wrong-bf764.firebasestorage.app',
     iosBundleId: 'com.example.proveMeWrong',
   );
+
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyCWYlakJ-O_BDRA7HG6naHq3gYa2p64lAs',
+    appId: '1:270828091134:web:7348075c4d4247675257af',
+    messagingSenderId: '270828091134',
+    projectId: 'prove-me-wrong-bf764',
+    authDomain: 'prove-me-wrong-bf764.firebaseapp.com',
+    databaseURL: 'https://prove-me-wrong-bf764-default-rtdb.europe-west1.firebasedatabase.app',
+    storageBucket: 'prove-me-wrong-bf764.firebasestorage.app',
+    measurementId: 'G-51YB71NEZ6',
+  );
+
 }
