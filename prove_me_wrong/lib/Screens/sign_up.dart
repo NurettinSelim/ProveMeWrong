@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:prove_me_wrong/core/theme/app_theme.dart';
 
-class SignUpScreen extends StatelessWidget {
+class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
+
+  @override
+  State<SignUpScreen> createState() => _SignUpScreenState();
+}
+
+class _SignUpScreenState extends State<SignUpScreen> {
+  bool isVisible = false;
 
   @override
   Widget build(BuildContext context) {
@@ -99,16 +106,32 @@ class SignUpScreen extends StatelessWidget {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            Container(
-                              height: 35,
-                              margin: EdgeInsets.only(left: 30),
-                              width: 190,
-                              decoration: BoxDecoration(
-                                color: AppColors.tertiary,
-                                borderRadius: BorderRadius.circular(20),
-                                border: Border.all(
+                            SizedBox(width: 24),
+                            Expanded(
+                              child: TextField(
+                                decoration: InputDecoration(
+                                  isDense: true,
+                                  filled: true,
+                                  fillColor: AppColors.tertiary,
+                                  contentPadding: EdgeInsets.all(4),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(20),
+                                    borderSide: BorderSide(
+                                      color: Colors.black,
+                                      width: 2,
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(20),
+                                    borderSide: BorderSide(
+                                      color: Colors.black,
+                                      width: 2,
+                                    ),
+                                  ),
+                                ),
+                                style: TextStyle(
                                   color: Colors.black,
-                                  width: 1,
+                                  fontSize: 16,
                                 ),
                               ),
                             ),
@@ -126,20 +149,51 @@ class SignUpScreen extends StatelessWidget {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            Container(
-                              height: 35,
-                              margin: EdgeInsets.only(left: 10, right: 5),
-                              width: 170,
-                              decoration: BoxDecoration(
-                                color: AppColors.tertiary,
-                                borderRadius: BorderRadius.circular(20),
-                                border: Border.all(
+                            SizedBox(width: 4),
+                            Expanded(
+                              child: TextField(
+                                obscureText: !isVisible,
+                                decoration: InputDecoration(
+                                  isDense: true,
+                                  filled: true,
+                                  fillColor: AppColors.tertiary,
+                                  contentPadding: EdgeInsets.all(8),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(20),
+                                    borderSide: BorderSide(
+                                      color: Colors.black,
+                                      width: 2,
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(20),
+                                    borderSide: BorderSide(
+                                      color: Colors.black,
+                                      width: 2,
+                                    ),
+                                  ),
+                                  suffixIcon: IconButton(
+                                    icon: Icon(
+                                      isVisible
+                                          ? Icons.visibility
+                                          : Icons.visibility_off,
+                                    ),
+                                    onPressed: () {
+                                      setState(() {
+                                        isVisible = !isVisible;
+                                      });
+                                    },
+                                    color: Colors.black,
+                                    iconSize: 16,
+                                  ),
+                                ),
+                                style: TextStyle(
                                   color: Colors.black,
-                                  width: 1,
+                                  fontSize: 16,
                                 ),
                               ),
                             ),
-                            Icon(Icons.visibility_off, color: Colors.black),
+                            SizedBox(width: 8),
                           ],
                         ),
                         SizedBox(height: 10),
@@ -147,14 +201,17 @@ class SignUpScreen extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Expanded(
-                              child: Container(
-                                height: 45,
-                                decoration: BoxDecoration(
-                                  color: AppColors.onPrimary,
-                                  borderRadius: BorderRadius.circular(25),
-                                  border: Border.all(
-                                    color: Colors.black,
-                                    width: 2,
+                              child: ElevatedButton(
+                                onPressed: () {},
+                                style: ElevatedButton.styleFrom(
+                                  minimumSize: Size(double.infinity, 45),
+                                  backgroundColor: AppColors.onPrimary,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(25),
+                                    side: BorderSide(
+                                      color: Colors.black,
+                                      width: 2,
+                                    ),
                                   ),
                                 ),
                                 child: Center(
@@ -164,6 +221,7 @@ class SignUpScreen extends StatelessWidget {
                                       fontFamily: "SpaceMono",
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,
+                                      color: Colors.black,
                                     ),
                                   ),
                                 ),
@@ -171,23 +229,27 @@ class SignUpScreen extends StatelessWidget {
                             ),
                             SizedBox(width: 15),
                             Expanded(
-                              child: Container(
-                                height: 45,
-                                decoration: BoxDecoration(
-                                  color: AppColors.secondary,
-                                  borderRadius: BorderRadius.circular(25),
-                                  border: Border.all(
-                                    color: Colors.black,
-                                    width: 2,
+                              child: ElevatedButton(
+                                onPressed: () {},
+                                style: ElevatedButton.styleFrom(
+                                  minimumSize: Size(double.infinity, 45),
+                                  backgroundColor: AppColors.secondary,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(25),
+                                    side: BorderSide(
+                                      color: Colors.black,
+                                      width: 2,
+                                    ),
                                   ),
                                 ),
+
                                 child: Center(
                                   child: Text(
                                     "SIGN UP",
                                     style: TextStyle(
                                       fontFamily: "SpaceMono",
                                       fontSize: 16,
-                                      color: Colors.white,
+                                      color: AppColors.onPrimary,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
@@ -207,21 +269,23 @@ class SignUpScreen extends StatelessWidget {
                   right: 50,
                   child: Container(
                     height: 60,
-                    padding: EdgeInsets.all(8),
                     decoration: BoxDecoration(
                       color: AppColors.onPrimary,
                       borderRadius: BorderRadius.circular(25),
                       border: Border.all(color: Colors.black, width: 2),
                     ),
                     child: Center(
-                      child: Text(
-                        "PROVE ME WRONG",
-                        style: TextStyle(
-                          color: AppColors.secondary,
-                          fontFamily: "HectorExtenda40",
-                          fontSize: 35,
+                      child: Padding(
+                        padding: EdgeInsetsGeometry.all(2),
+                        child: Text(
+                          "PROVE ME WRONG",
+                          style: TextStyle(
+                            color: AppColors.secondary,
+                            fontFamily: "HectorExtenda40",
+                            fontSize: 48,
+                          ),
+                          textAlign: TextAlign.center,
                         ),
-                        textAlign: TextAlign.center,
                       ),
                     ),
                   ),
