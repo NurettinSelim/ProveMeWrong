@@ -95,18 +95,22 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        SizedBox(height: 12),
                         Row(
                           children: [
-                            Text(
-                              "E-MAIL:",
-                              style: TextStyle(
-                                fontFamily: "SpaceMono",
-                                fontSize: 16,
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
+                            SizedBox(
+                              width: 95,
+                              child: Text(
+                                "E-MAIL:",
+                                style: TextStyle(
+                                  fontFamily: "SpaceMono",
+                                  fontSize: 16,
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
-                            SizedBox(width: 24),
+                            SizedBox(width: 4),
                             Expanded(
                               child: TextField(
                                 decoration: InputDecoration(
@@ -114,6 +118,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                   filled: true,
                                   fillColor: AppColors.tertiary,
                                   contentPadding: EdgeInsets.all(4),
+                                  suffixIconConstraints: BoxConstraints(
+                                    maxHeight: 24,
+                                    maxWidth: 24,
+                                  ),
                                   enabledBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(20),
                                     borderSide: BorderSide(
@@ -140,13 +148,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         SizedBox(height: 15),
                         Row(
                           children: [
-                            Text(
-                              "PASSWORD:",
-                              style: TextStyle(
-                                fontFamily: "SpaceMono",
-                                fontSize: 16,
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
+                            SizedBox(
+                              width: 95,
+                              child: Text(
+                                "PASSWORD:",
+                                style: TextStyle(
+                                  fontFamily: "SpaceMono",
+                                  fontSize: 16,
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
                             SizedBox(width: 4),
@@ -157,7 +168,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                   isDense: true,
                                   filled: true,
                                   fillColor: AppColors.tertiary,
-                                  contentPadding: EdgeInsets.all(8),
+                                  contentPadding: EdgeInsets.all(4),
+                                  suffixIconConstraints: BoxConstraints(
+                                    maxHeight: 24,
+                                    maxWidth: 24,
+                                  ),
                                   enabledBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(20),
                                     borderSide: BorderSide(
@@ -172,19 +187,25 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                       width: 2,
                                     ),
                                   ),
-                                  suffixIcon: IconButton(
-                                    icon: Icon(
-                                      isVisible
-                                          ? Icons.visibility
-                                          : Icons.visibility_off,
+                                  suffixIcon: Padding(
+                                    padding: EdgeInsets.fromLTRB(0, 2, 8, 2),
+                                    child: IconButton(
+                                      style: ButtonStyle(
+                                        iconAlignment: IconAlignment.end,
+                                      ),
+                                      icon: Icon(
+                                        isVisible
+                                            ? Icons.visibility
+                                            : Icons.visibility_off,
+                                      ),
+                                      onPressed: () {
+                                        setState(() {
+                                          isVisible = !isVisible;
+                                        });
+                                      },
+                                      color: Colors.black,
+                                      iconSize: 16,
                                     ),
-                                    onPressed: () {
-                                      setState(() {
-                                        isVisible = !isVisible;
-                                      });
-                                    },
-                                    color: Colors.black,
-                                    iconSize: 16,
                                   ),
                                 ),
                                 style: TextStyle(
@@ -193,10 +214,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 ),
                               ),
                             ),
-                            SizedBox(width: 8),
                           ],
                         ),
-                        SizedBox(height: 10),
+                        SizedBox(height: 16),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -227,7 +247,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 ),
                               ),
                             ),
-                            SizedBox(width: 15),
+                            SizedBox(width: 16),
                             Expanded(
                               child: ElevatedButton(
                                 onPressed: () {},
@@ -262,7 +282,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     ),
                   ),
                 ),
-                //signup cardı
+
                 Positioned(
                   top: -25,
                   left: 50,
