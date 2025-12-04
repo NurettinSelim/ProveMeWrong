@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:prove_me_wrong/core/theme/app_theme.dart';
 
@@ -10,6 +11,79 @@ class SignUpScreen extends StatefulWidget {
 
 class _SignUpScreenState extends State<SignUpScreen> {
   bool isVisible = false;
+  final mailController = TextEditingController();
+  final passwordController = TextEditingController();
+
+  Future<void> signIn() async {
+    String? errorMessage;
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: mailController.text.trim(),
+        password: passwordController.text,
+      );
+    } on FirebaseAuthException catch (e) {
+      if (e.code == "network-request-failed") {
+        errorMessage = "Please check your network connection.";
+      } else {
+        errorMessage = "Sign-in failed. Please check your email and password.";
+      }
+    } catch (e) {
+      errorMessage = "Some error occured. Please try again.";
+    }
+
+    if (errorMessage != null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(errorMessage)));
+    }
+  }
+
+  Future<void> signUp() async {
+    String? errorMessage;
+    try {
+      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: mailController.text.trim(),
+        password: passwordController.text,
+      );
+    } on FirebaseAuthException catch (e) {
+      switch (e.code) {
+        case "email-already-in-use":
+          errorMessage = "Email is already used.";
+          break;
+        case "invalid-email":
+          errorMessage = "Please enter valid email.";
+          break;
+        case "weak-password":
+        case "password-does-not-meet-requirements":
+          errorMessage =
+              "Password must be at least 8 characters, include uppercase, lowercase, number, and special character.";
+          break;
+        case "too-many-requests":
+          errorMessage = "You sent too many request please try again later.";
+          break;
+        case "network-request-failed":
+          errorMessage = "Please check your network connection.";
+          break;
+        default:
+          errorMessage = "Error occured. Please try again later.";
+      }
+    } catch (e) {
+      errorMessage = "Error occured. Please try again later.";
+    }
+
+    if (errorMessage != null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(errorMessage)));
+    }
+  }
+
+  @override
+  void dispose() {
+    mailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -112,7 +186,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             ),
                             SizedBox(width: 4),
                             Expanded(
-                              child: TextField(
+                              child: TextFormField(
+                                controller: mailController,
+
                                 decoration: InputDecoration(
                                   isDense: true,
                                   filled: true,
@@ -162,7 +238,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             ),
                             SizedBox(width: 4),
                             Expanded(
-                              child: TextField(
+                              child: TextFormField(
+                                controller: passwordController,
+
                                 obscureText: !isVisible,
                                 decoration: InputDecoration(
                                   isDense: true,
@@ -222,7 +300,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           children: [
                             Expanded(
                               child: ElevatedButton(
-                                onPressed: () {},
+                                onPressed: signIn,
                                 style: ElevatedButton.styleFrom(
                                   minimumSize: Size(double.infinity, 45),
                                   backgroundColor: AppColors.onPrimary,
@@ -250,7 +328,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             SizedBox(width: 16),
                             Expanded(
                               child: ElevatedButton(
-                                onPressed: () {},
+                                onPressed: signUp,
                                 style: ElevatedButton.styleFrom(
                                   minimumSize: Size(double.infinity, 45),
                                   backgroundColor: AppColors.secondary,
