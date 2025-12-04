@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prove_me_wrong/core/data/screens_data.dart';
 import 'package:prove_me_wrong/core/theme/app_theme.dart';
+import 'package:prove_me_wrong/widgets/create_room.dart';
 
 class Footer extends ConsumerStatefulWidget {
   const Footer({super.key});
@@ -24,7 +25,12 @@ class _FooterState extends ConsumerState<Footer> {
       "label": "Rooms",
       "targetScreen": Screens.roomsScreen,
     },
-    {"icon": Icons.add, "label": "Create Room"},
+    {
+      "icon": Icons.add,
+      "label": "Create Room",
+      "targetScreen": null,
+      "isModal": true,
+    },
   ];
 
   @override
@@ -52,12 +58,26 @@ class _FooterState extends ConsumerState<Footer> {
           bool isSelected = selectedIndex == index;
 
           return GestureDetector(
-            onTap: () => setState(() {
-              selectedIndex = index;
-              if (item["targetScreen"] != null) {
-                screenNotifier.state = item["targetScreen"];
+            onTap: () {
+              if (item["isModal"] == true) {
+                // Modal açılmadan önce mevcut index'i koru
+                showModalBottomSheet(
+                  context: context,
+                  builder: (context) => CreateRoom(),
+                ).then((_) {
+                  // Modal kapandığında state'i yenile (gerekirse)
+                  setState(() {});
+                });
+              } else {
+                setState(() {
+                  selectedIndex = index;
+                  if (item["targetScreen"] != null) {
+                    screenNotifier.state = item["targetScreen"];
+                  }
+                });
               }
-            }),
+            },
+
             child: AnimatedContainer(
               height: 36,
               duration: Duration(milliseconds: 300),
