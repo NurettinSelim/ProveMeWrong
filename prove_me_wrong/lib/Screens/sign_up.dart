@@ -186,7 +186,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             ),
                             SizedBox(width: 4),
                             Expanded(
-                              child: TextFormField(
+                              child: TextField(
                                 controller: mailController,
 
                                 decoration: InputDecoration(
@@ -238,7 +238,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             ),
                             SizedBox(width: 4),
                             Expanded(
-                              child: TextFormField(
+                              child: TextField(
                                 controller: passwordController,
 
                                 obscureText: !isVisible,
