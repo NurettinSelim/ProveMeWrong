@@ -12,6 +12,7 @@ class CreateRoom extends StatefulWidget {
 
 class _CreateRoomState extends State<CreateRoom> {
   String? selectedLanguage;
+  String? selectedCategory;
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -98,7 +99,24 @@ class _CreateRoomState extends State<CreateRoom> {
                     ),
                     SizedBox(width: 15),
                     Expanded(
-                      child: TextField(
+                      child: DropdownButtonFormField<Categories>(
+                        items: Categories.values.map((cat) {
+                          return DropdownMenuItem<Categories>(
+                            value: cat,
+                            child: Text(cat.value),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            selectedCategory = value!.value;
+                          });
+                        },
+                        value: selectedCategory.toString() != "null"
+                            ? Categories.values.firstWhere(
+                                (cat) => cat.value == selectedCategory,
+                              )
+                            : null,
+
                         decoration: InputDecoration(
                           isDense: true,
                           filled: true,
@@ -118,10 +136,6 @@ class _CreateRoomState extends State<CreateRoom> {
                               width: 2,
                             ),
                           ),
-                        ),
-                        style: TextStyle(
-                          color: AppColors.onPrimary,
-                          fontSize: 16,
                         ),
                       ),
                     ),
