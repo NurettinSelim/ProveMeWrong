@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:prove_me_wrong/core/theme/app_theme.dart';
 
@@ -40,6 +41,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   Future<void> signUp() async {
     String? errorMessage;
+
     try {
       await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: mailController.text.trim(),
@@ -67,15 +69,19 @@ class _SignUpScreenState extends State<SignUpScreen> {
         default:
           errorMessage = "Error occured. Please try again later.";
       }
-    } catch (e) {
-      errorMessage = "Error occured. Please try again later.";
     }
 
     if (errorMessage != null) {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text(errorMessage)));
+      return;
     }
+
+    User currentUser = FirebaseAuth.instance.currentUser!;
+    await FirebaseDatabase.instance.ref("users/${currentUser.uid}").set({
+      "score": 0,
+    });
   }
 
   @override
