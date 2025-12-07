@@ -1,7 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-import 'package:prove_me_wrong/core/theme/app_theme.dart';
-import 'package:prove_me_wrong/core/data/language_data.dart';
 import 'package:prove_me_wrong/core/data/category_data.dart';
+import 'package:prove_me_wrong/core/data/language_data.dart';
+import 'package:prove_me_wrong/core/theme/app_theme.dart';
 
 class CreateRoom extends StatefulWidget {
   const CreateRoom({super.key});
@@ -13,6 +15,50 @@ class CreateRoom extends StatefulWidget {
 class _CreateRoomState extends State<CreateRoom> {
   String? selectedLanguage;
   String? selectedCategory;
+  final titleController = TextEditingController();
+
+  //  Returns error or success message
+  Future<String> createRoom() async {
+    if (selectedCategory == null || selectedLanguage == null) {
+      return "Language and Category can't be empty.";
+    }
+    String title = titleController.text.trim();
+    if (title.isEmpty) return "Title can't be empty.";
+    final currentUser = FirebaseAuth.instance.currentUser;
+    final userDb = FirebaseDatabase.instance.ref("users/${currentUser!.uid}");
+
+    DataSnapshot roomCountSnap;
+    try {
+      roomCountSnap = await userDb.child("roomCount").get();
+    } catch (e) {
+      return "Something went wrong. Try again later.";
+    }
+
+    if (roomCountSnap.value as int >= 7) {
+      return "You can only have 7 rooms at the same time.";
+    }
+
+    final roomsRef = FirebaseDatabase.instance.ref("rooms");
+    final room = roomsRef.push();
+
+    await room.set({
+      "owner": currentUser.uid,
+      "category": selectedCategory,
+      "language": selectedLanguage,
+      "title": title,
+    });
+
+    await userDb.child("rooms").push().set(room.key);
+
+    return "Succesfully created the room.";
+  }
+
+  @override
+  void dispose() {
+    titleController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -62,6 +108,8 @@ class _CreateRoomState extends State<CreateRoom> {
                     SizedBox(width: 15),
                     Expanded(
                       child: TextField(
+                        controller: titleController,
+
                         decoration: InputDecoration(
                           isDense: true,
                           filled: true,
@@ -205,7 +253,12 @@ class _CreateRoomState extends State<CreateRoom> {
                 side: BorderSide(color: Colors.black, width: 2),
               ),
             ),
-            onPressed: () {},
+            onPressed: () async {
+              final result = await createRoom();
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(result)));
+            },
             child: Text(
               "CREATE ROOM",
               style: TextStyle(
