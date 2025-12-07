@@ -11,3 +11,9 @@ enum Categories {
   final String value;
   const Categories(this.value);
 }
+
+bool isValidCategory(String category) {
+  return Categories.values.any((element) {
+    return element.value == category;
+  });
+}
