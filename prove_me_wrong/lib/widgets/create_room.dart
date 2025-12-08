@@ -28,8 +28,10 @@ class _CreateRoomState extends State<CreateRoom> {
     final userDb = FirebaseDatabase.instance.ref("users/${currentUser!.uid}");
 
     DataSnapshot roomCountSnap;
+    DataSnapshot ownerScoreSnap;
     try {
       roomCountSnap = await userDb.child("roomCount").get();
+      ownerScoreSnap = await userDb.child("score").get();
     } catch (e) {
       return "Something went wrong. Try again later.";
     }
@@ -41,14 +43,19 @@ class _CreateRoomState extends State<CreateRoom> {
     final roomsRef = FirebaseDatabase.instance.ref("rooms");
     final room = roomsRef.push();
 
-    await room.set({
-      "owner": currentUser.uid,
-      "category": selectedCategory,
-      "language": selectedLanguage,
-      "title": title,
-    });
-
-    await userDb.child("rooms").push().set(room.key);
+    try {
+      await room.set({
+        "ownerID": currentUser.uid,
+        "ownerScore": ownerScoreSnap.value as int,
+        "category": selectedCategory,
+        "language": selectedLanguage,
+        "title": title,
+      });
+      await userDb.child("rooms").push().set(room.key);
+    } catch (e) {
+      print(e);
+      return "Something went wrong. Please try again later.";
+    }
 
     return "Succesfully created the room.";
   }
