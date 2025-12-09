@@ -51,13 +51,16 @@ class _RoomsScreenState extends State<RoomsScreen> {
           language: language,
         ),
       );
+      setState(() {});
     });
 
     userDb.child("rooms").onChildRemoved.listen((event) {
       String removedId = event.snapshot.value as String;
       for (int i = 0; i < rooms.length; i++) {
         if (rooms[i].roomId == removedId) {
-          rooms.removeAt(i);
+          setState(() {
+            rooms.removeAt(i);
+          });
           return;
         }
       }
