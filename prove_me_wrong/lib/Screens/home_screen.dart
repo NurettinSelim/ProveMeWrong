@@ -5,7 +5,6 @@ import 'package:prove_me_wrong/core/data/category_data.dart';
 import 'package:prove_me_wrong/core/data/language_data.dart';
 import 'package:prove_me_wrong/core/data/room_data.dart';
 import 'package:prove_me_wrong/core/theme/app_theme.dart';
-import 'package:prove_me_wrong/widgets/create_room.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -60,14 +59,7 @@ class HomeScreen extends StatelessWidget {
               ),
               SizedBox(height: 12),
               ElevatedButton(
-                onPressed: () {
-                  showModalBottomSheet(
-                    context: context,
-                    isScrollControlled: true,
-                    backgroundColor: Colors.transparent,
-                    builder: (_) => const CreateRoom(),
-                  );
-                },
+                onPressed: () {},
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.secondary,
 
