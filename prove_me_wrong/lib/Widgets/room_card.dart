@@ -3,9 +3,10 @@ import 'package:prove_me_wrong/core/data/room_data.dart';
 import 'package:prove_me_wrong/core/theme/app_theme.dart';
 
 class RoomCard extends StatelessWidget {
-  const RoomCard({super.key, required this.room});
+  const RoomCard({super.key, required this.room, this.onEnter});
 
   final Room room;
+  final void Function(String roomId)? onEnter;
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +48,9 @@ class RoomCard extends StatelessWidget {
                 ),
               ),
               TextButton(
-                onPressed: () {},
+                onPressed: () {
+                  onEnter?.call(room.roomId);
+                },
                 child: Text(
                   "Enter",
                   style: TextStyle(
