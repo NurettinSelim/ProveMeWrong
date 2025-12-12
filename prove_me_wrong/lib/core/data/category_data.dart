@@ -26,3 +26,8 @@ bool isValidCategory(String category) {
     return element.value == category;
   });
 }
+
+class CategoryList {
+  bool listChanged = false;
+  List<Categories> categories = [Categories.foods];
+}
