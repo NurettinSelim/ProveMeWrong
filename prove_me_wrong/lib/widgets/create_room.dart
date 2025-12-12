@@ -56,7 +56,6 @@ class _CreateRoomState extends State<CreateRoom> {
           .ref("categories/$selectedCategory/${room.key}")
           .set({"timeStamp": ServerValue.timestamp});
     } catch (e) {
-      print(e);
       return "Something went wrong. Please try again later.";
     }
 
