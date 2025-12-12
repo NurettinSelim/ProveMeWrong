@@ -3,14 +3,14 @@ import 'package:prove_me_wrong/core/data/category_data.dart';
 import 'package:prove_me_wrong/core/theme/app_theme.dart';
 
 class CategoryGrid extends StatefulWidget {
-  const CategoryGrid({super.key});
+  const CategoryGrid({super.key, required this.categoryList});
+  final CategoryList categoryList;
 
   @override
   State<CategoryGrid> createState() => _CategoryGridState();
 }
 
 class _CategoryGridState extends State<CategoryGrid> {
-  Set<int> selectedIndices = {};
   @override
   Widget build(BuildContext context) {
     return GridView.builder(
@@ -22,14 +22,17 @@ class _CategoryGridState extends State<CategoryGrid> {
       ),
       itemCount: Categories.values.length,
       itemBuilder: (context, index) {
-        bool isSelected = selectedIndices.contains(index);
+        bool isSelected = widget.categoryList.categories.contains(
+          Categories.values[index],
+        );
         return InkWell(
           onTap: () {
             if (isSelected) {
-              selectedIndices.remove(index);
+              widget.categoryList.categories.remove(Categories.values[index]);
             } else {
-              selectedIndices.add(index);
+              widget.categoryList.categories.add(Categories.values[index]);
             }
+            widget.categoryList.listChanged = true;
             setState(() {});
           },
           child: Container(
