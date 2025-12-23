@@ -44,6 +44,7 @@ class _CreateRoomState extends State<CreateRoom> {
     final room = roomsRef.push();
 
     try {
+      await userDb.child("roomCount").set((roomCountSnap.value as int) + 1);
       await room.set({
         "ownerID": currentUser.uid,
         "ownerScore": ownerScoreSnap.value as int,
