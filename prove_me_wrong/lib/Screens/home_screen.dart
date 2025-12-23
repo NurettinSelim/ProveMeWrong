@@ -105,7 +105,8 @@ class _HomeScreenState extends State<HomeScreen> {
           .child(categorySnap.children.first.key as String)
           .get();
       LinkedHashMap roomMap = roomSnap.value as LinkedHashMap;
-      if (roomMap["guestID"] != null || roomMap["guestID"] == currentUser.uid) {
+      if (roomMap["ownerID"] == currentUser.uid ||
+          roomMap["guestID"] == currentUser.uid) {
         i -= 1;
         continue;
       }
