@@ -99,6 +99,7 @@ class _RoomsScreenState extends State<RoomsScreen> {
                         ownerScore: rooms[index].ownerScore,
                         title: rooms[index].title,
                       ),
+                      showPopUp: false,
                     ),
                     Positioned(
                       top: -15,
