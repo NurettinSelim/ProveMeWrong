@@ -50,9 +50,9 @@
     
     "rooms": {
       ".read": true,
+        ".write": true,
       "$roomId": {
-        ".read": true,
-        ".write": "auth.uid != null && (!data.exists() && newData.hasChildren(['ownerID', 'category', 'title', 'language', 'ownerScore']) || (data.exists() && !newData.exists() && (data.child('ownerID').val() == auth.uid || data.child('guestID').val() == auth.uid)))",
+				".write": "auth.uid != null && !data.exists() && newData.hasChildren(['ownerID', 'category', 'title', 'language', 'ownerScore'])",        
         "ownerID": {".validate": "auth.uid != null && newData.val() == auth.uid"},
         "guestID": {".write": "auth.uid == newData.val() && !data.exists()"},
         "ownerScore": {".validate": "root.child('users').child(auth.uid).child('score').val() === newData.val()"},
@@ -61,15 +61,18 @@
         "title": {".validate": "newData.isString() && newData.val().length <= 100"},
         
         "messages":{
-          ".read": "auth.uid != null && (root.child('rooms').child($roomId).child('ownerID').val() == auth.uid || root.child('rooms').child($roomId).child('guestID').val() == auth.uid)",
-          "$messageId": {
-            ".write": "auth.uid != null && (root.child('rooms').child($roomId).child('ownerID').val() == auth.uid || root.child('rooms').child($roomId).child('guestID').val() == auth.uid) && newData.hasChildren(['message', 'timeStamp', 'senderId']) && newData.child('senderId').val() == auth.uid",
-            "message": {".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 1000"},
-            "timeStamp": {".validate": "newData.isNumber()"},
-            "senderId": {".validate": "newData.val() == auth.uid"}
+          ".read": true,
+            ".write": true,
+        	"$messageId": {
+            ".read": true,
+            ".write": true,
+            ".validate": true,
+            "message": {".validate":true},
+            "timeStamp" : {".validate": true}, 
+            "senderId": {".validate": true}
           },
         },
-        "$other": {".validate": false}
+        "$other": {".validate": true}
       }
     },
     
