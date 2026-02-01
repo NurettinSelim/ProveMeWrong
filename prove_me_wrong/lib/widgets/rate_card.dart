@@ -42,6 +42,43 @@ class _RateCardState extends State<RateCard> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold();
+    int selectedIndex = -1;
+    return StatefulBuilder(
+      builder: (context, setState) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text("0 = Worst to 5 = Best"),
+            SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: List.generate(5, (index) {
+                final isSelected = index <= selectedIndex;
+
+                return GestureDetector(
+                  onTap: () {
+                    setState(() => selectedIndex = index);
+                  },
+
+                  /*child: Image.asset(
+                    isSelected
+                        ? "lib/assets/icons/filled_tom.png"
+                        : "lib/assets/icons/empty_tom.png",
+                  ), */
+                  child: Icon(
+                    Icons.star,
+                    color: isSelected
+                        ? const Color.fromARGB(255, 251, 215, 38)
+                        : Colors.grey,
+                  ),
+                );
+              }),
+            ),
+            SizedBox(height: 16),
+            TextButton(onPressed: () {}, child: const Text("Send")),
+          ],
+        );
+      },
+    );
   }
 }

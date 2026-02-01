@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:prove_me_wrong/Widgets/report.dart';
+import 'package:prove_me_wrong/widgets/report.dart';
 import 'package:prove_me_wrong/core/data/room_data.dart';
 import 'package:prove_me_wrong/core/theme/app_theme.dart';
 import 'package:prove_me_wrong/Screens/chat_screen.dart';

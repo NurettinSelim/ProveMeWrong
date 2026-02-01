@@ -1,9 +1,11 @@
+//chatscreen
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:prove_me_wrong/core/theme/app_theme.dart';
 import 'package:prove_me_wrong/core/data/room_data.dart';
 import 'package:prove_me_wrong/widgets/chat_bubble.dart';
+import 'package:prove_me_wrong/widgets/rate_card.dart';
 
 //rulesda $message .write kısmında: null && root.child('users/' + auth.uid + '/rooms/' + $id).exists() && newData.child('senderId').val() === auth.uid
 
@@ -26,6 +28,11 @@ class _ChatScreenState extends State<ChatScreen> {
     "users/${currentUser!.uid}",
   );
 
+  final userID = FirebaseAuth
+      .instance
+      .currentUser!
+      .uid; //ownerID yaparsam sadece room sahibi mesaj atabilir, o yüzden direkt uygulamayı açan kişinin idsini alıyorum
+
   @override
   void initState() {
     super.initState();
@@ -40,10 +47,6 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> sendMessage(String text) async {
-    final userID = FirebaseAuth
-        .instance
-        .currentUser!
-        .uid; //ownerID yaparsam sadece room sahibi mesaj atabilir, o yüzden direkt uygulamayı açan kişinin idsini alıyorum
     final roomId = widget.rooms.roomId;
 
     final messageRef = FirebaseDatabase.instance
@@ -97,11 +100,79 @@ class _ChatScreenState extends State<ChatScreen> {
               ],
             ),
             Spacer(),
-            IconButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              icon: Icon(Icons.arrow_back, color: AppColors.onSecondary),
+            TextButton(
+              onPressed: () => showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text("Are you sure?"),
+                  content: const Text(
+                    "Session will be over and you can rate your opponent.",
+                  ),
+                  actions: <Widget>[
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context); // Are you sure? dialogunu kapat
+
+                        showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (context) {
+                            return AlertDialog(
+                              title: const Text("Rate Your Opponent"),
+                              content: RateCard(raterId: userID),
+                              /*actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: const Text("Submit"),
+                                ),
+                              ], */
+                            );
+                          },
+                        );
+                      },
+
+                      style: ButtonStyle(
+                        foregroundColor: WidgetStatePropertyAll<Color>(
+                          AppColors.primary,
+                        ),
+                      ),
+                      child: const Text("Flee"),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: ButtonStyle(
+                        foregroundColor: WidgetStatePropertyAll<Color>(
+                          AppColors.onPrimary,
+                        ),
+                        backgroundColor: WidgetStatePropertyAll(
+                          AppColors.primary,
+                        ),
+                      ),
+                      child: const Text("Stay"),
+                    ),
+                  ],
+                ),
+              ),
+              style: ButtonStyle(
+                padding: WidgetStatePropertyAll<EdgeInsetsGeometry>(
+                  EdgeInsetsGeometry.all(16),
+                ),
+                alignment: Alignment.center,
+                backgroundColor: WidgetStatePropertyAll<Color>(
+                  AppColors.onPrimary,
+                ),
+                textStyle: WidgetStatePropertyAll<TextStyle>(
+                  TextStyle(
+                    fontSize: 16,
+                    //fontWeight: FontWeight.bold,
+                    fontFamily: "Azer29LT",
+                  ),
+                ),
+                foregroundColor: WidgetStatePropertyAll<Color>(
+                  AppColors.secondary,
+                ),
+              ),
+              child: Text("Flee From the Fight"),
             ),
           ],
         ),
