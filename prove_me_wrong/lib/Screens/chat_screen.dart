@@ -23,6 +23,7 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final currentUser = FirebaseAuth.instance.currentUser;
+  late final String roomId;
 
   late final userDb = FirebaseDatabase.instance.ref(
     "users/${currentUser!.uid}",
@@ -36,6 +37,7 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
+    roomId = widget.rooms.roomId;
   }
 
   final TextEditingController messageController = TextEditingController();
@@ -44,6 +46,48 @@ class _ChatScreenState extends State<ChatScreen> {
   void dispose() {
     messageController.dispose();
     super.dispose();
+  }
+
+  Future<void> deleteRoom(String roomId) async {
+    final room = widget.rooms;
+    
+    // Room'u sil
+    await FirebaseDatabase.instance.ref("rooms/$roomId").remove();
+    
+    // Kullanıcının room referansını sil
+    await userDb.child("rooms/$roomId").remove();
+    
+    // Kategoriden room'u sil
+    await FirebaseDatabase.instance
+        .ref("categories/${room.category.name}/$roomId")
+        .remove();
+    
+    // Room count'u azalt
+    final roomCountSnapshot = await userDb.child("roomCount").get();
+    if (roomCountSnapshot.exists) {
+      final currentCount = roomCountSnapshot.value as int;
+      if (currentCount > 0) {
+        await userDb.child("roomCount").set(currentCount - 1);
+      }
+    }
+  }
+
+  Future<void> openRateCard() async {
+    final int? rating = await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Rate Your Opponent", textAlign: TextAlign.center),
+          content: RateCard(raterId: userID),
+        );
+      },
+    );
+    if (rating != null) {
+      await deleteRoom(roomId);
+      if (mounted) {
+        Navigator.pop(context); // Chat ekranından çık
+      }
+    }
   }
 
   Future<void> sendMessage(String text) async {
@@ -112,23 +156,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     TextButton(
                       onPressed: () {
                         Navigator.pop(context); // Are you sure? dialogunu kapat
-
-                        showDialog(
-                          context: context,
-                          barrierDismissible: false,
-                          builder: (context) {
-                            return AlertDialog(
-                              title: const Text("Rate Your Opponent"),
-                              content: RateCard(raterId: userID),
-                              /*actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context),
-                                  child: const Text("Submit"),
-                                ),
-                              ], */
-                            );
-                          },
-                        );
+                        openRateCard();
                       },
 
                       style: ButtonStyle(

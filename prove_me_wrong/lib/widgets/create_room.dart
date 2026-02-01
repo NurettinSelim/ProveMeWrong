@@ -31,7 +31,7 @@ class _CreateRoomState extends State<CreateRoom> {
     DataSnapshot ownerScoreSnap;
     try {
       roomCountSnap = await userDb.child("roomCount").get();
-      ownerScoreSnap = await userDb.child("score").get();
+      ownerScoreSnap = await userDb.child("rating/score").get();
     } catch (e) {
       return "Something went wrong. Try again later.";
     }

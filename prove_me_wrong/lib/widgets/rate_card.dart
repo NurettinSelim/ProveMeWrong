@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:prove_me_wrong/core/theme/app_theme.dart';
 
 class RateCard extends StatefulWidget {
   final String raterId;
@@ -83,12 +84,14 @@ class _RateCardState extends State<RateCard> {
             SizedBox(height: 16),
             TextButton(
               onPressed: () {
-                final add_score = selectedIndex + 1;
-                calculateRate(userID, add_score);
-                Navigator.pop(context);
-                closeRoom();
+                final addScore = selectedIndex + 1;
+                calculateRate(userID, addScore);
+                Navigator.pop(context, addScore);
               },
-              child: const Text("Send"),
+              child: const Text(
+                "Send",
+                style: TextStyle(color: AppColors.primary),
+              ),
             ),
           ],
         );
