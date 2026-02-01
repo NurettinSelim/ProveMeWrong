@@ -107,16 +107,16 @@ class _RoomsScreenState extends State<RoomsScreen> {
                       child: Stack(
                         alignment: .center,
                         children: [
-                          Icon(
-                            Icons.circle_rounded,
-                            color: Colors.red,
-                            size: 32,
+                          Image.asset(
+                            "lib/assets/icons/s_filled_tomato.png",
+                            width: 32,
+                            height: 32,
                           ),
                           Text(
                             "570",
                             style: TextStyle(
                               fontFamily: "Azer29LT",
-                              color: AppColors.onSecondary,
+                              color: AppColors.onPrimary,
                             ),
                           ),
                         ],

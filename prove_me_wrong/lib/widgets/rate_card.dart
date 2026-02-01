@@ -40,6 +40,8 @@ class _RateCardState extends State<RateCard> {
     });
   }
 
+  Future<void> closeRoom() async {}
+
   @override
   Widget build(BuildContext context) {
     int selectedIndex = -1;
@@ -60,22 +62,34 @@ class _RateCardState extends State<RateCard> {
                     setState(() => selectedIndex = index);
                   },
 
-                  /*child: Image.asset(
-                    isSelected
-                        ? "lib/assets/icons/filled_tom.png"
-                        : "lib/assets/icons/empty_tom.png",
-                  ), */
+                  /*
                   child: Icon(
                     Icons.star,
                     color: isSelected
                         ? const Color.fromARGB(255, 251, 215, 38)
                         : Colors.grey,
                   ),
+                  */
+                  child: Image.asset(
+                    isSelected
+                        ? "lib/assets/icons/s_filled_tomato.png"
+                        : "lib/assets/icons/s_empty_tomato.png",
+                    width: 28,
+                    height: 28,
+                  ),
                 );
               }),
             ),
             SizedBox(height: 16),
-            TextButton(onPressed: () {}, child: const Text("Send")),
+            TextButton(
+              onPressed: () {
+                final add_score = selectedIndex + 1;
+                calculateRate(userID, add_score);
+                Navigator.pop(context);
+                closeRoom();
+              },
+              child: const Text("Send"),
+            ),
           ],
         );
       },
