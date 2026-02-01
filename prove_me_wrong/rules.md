@@ -50,29 +50,47 @@
     
     "rooms": {
       ".read": true,
-        ".write": true,
       "$roomId": {
-				".write": "auth.uid != null && !data.exists() && newData.hasChildren(['ownerID', 'category', 'title', 'language', 'ownerScore'])",        
-        "ownerID": {".validate": "auth.uid != null && newData.val() == auth.uid"},
-        "guestID": {".write": "auth.uid == newData.val() && !data.exists()"},
-        "ownerScore": {".validate": "root.child('users').child(auth.uid).child('score').val() === newData.val()"},
-        "category": {".validate": "newData.isString() && newData.val().length <= 10"},
-        "language": {".validate": "newData.isString() && newData.val().length <= 10"},
-        "title": {".validate": "newData.isString() && newData.val().length <= 100"},
+        ".read": true,
+        "ownerID": {
+          ".write": "auth.uid != null && !data.exists() && newData.val() == auth.uid",
+          ".validate": "newData.val() == auth.uid"
+        },
+        "guestID": {
+          ".write": "auth.uid == newData.val() && !data.exists()",
+          ".validate": "newData.val() == auth.uid"
+        },
+        "ownerScore": {
+          ".write": "auth.uid != null && !data.exists()",
+          ".validate": "newData.isNumber()"
+        },
+        "category": {
+          ".write": "auth.uid != null && !data.exists()",
+          ".validate": "newData.isString() && newData.val().length <= 10"
+        },
+        "language": {
+          ".write": "auth.uid != null && !data.exists()",
+          ".validate": "newData.isString() && newData.val().length <= 10"
+        },
+        "title": {
+          ".write": "auth.uid != null && !data.exists()",
+          ".validate": "newData.isString() && newData.val().length <= 100"
+        },
         
         "messages":{
-          ".read": true,
-            ".write": true,
-        	"$messageId": {
-            ".read": true,
-            ".write": true,
-            ".validate": true,
-            "message": {".validate":true},
-            "timeStamp" : {".validate": true}, 
-            "senderId": {".validate": true}
+          ".read": "auth.uid != null && (root.child('rooms').child($roomId).child('ownerID').val() == auth.uid || root.child('rooms').child($roomId).child('guestID').val() == auth.uid)",
+          ".write": "auth.uid != null && (root.child('rooms').child($roomId).child('ownerID').val() == auth.uid || root.child('rooms').child($roomId).child('guestID').val() == auth.uid)",
+          "$messageId": {
+            ".validate": "newData.hasChildren(['message', 'timeStamp', 'senderId']) && newData.child('senderId').val() == auth.uid",
+            "message": {".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 1000"},
+            "timeStamp": {".validate": "newData.isNumber()"},
+            "senderId": {".validate": "newData.val() == auth.uid"}
           },
         },
-        "$other": {".validate": true}
+        "$other": {
+          ".write": "auth.uid != null && (data.parent().child('ownerID').val() == auth.uid || data.parent().child('guestID').val() == auth.uid) && !newData.exists()",
+          ".validate": false
+        }
       }
     },
     

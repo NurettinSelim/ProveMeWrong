@@ -37,7 +37,7 @@ class _RateCardState extends State<RateCard> {
         data = {"total": totalS, "count": count, "score": avg};
       }
 
-      return Transaction.success(mutableData);
+      return Transaction.success(data);
     });
   }
 

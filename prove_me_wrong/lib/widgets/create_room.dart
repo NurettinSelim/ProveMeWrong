@@ -29,9 +29,20 @@ class _CreateRoomState extends State<CreateRoom> {
 
     DataSnapshot roomCountSnap;
     DataSnapshot ownerScoreSnap;
+    int ownerScore;
+    
     try {
       roomCountSnap = await userDb.child("roomCount").get();
+      
+      // Önce rating/score'u kontrol et, yoksa score'u kullan
       ownerScoreSnap = await userDb.child("rating/score").get();
+      if (ownerScoreSnap.exists) {
+        ownerScore = (ownerScoreSnap.value as num).toInt();
+      } else {
+        // rating/score yoksa, score'u kullan
+        final scoreSnap = await userDb.child("score").get();
+        ownerScore = (scoreSnap.value as num).toInt();
+      }
     } catch (e) {
       return "Something went wrong. Try again later.";
     }
@@ -44,10 +55,9 @@ class _CreateRoomState extends State<CreateRoom> {
     final room = roomsRef.push();
 
     try {
-      await userDb.child("roomCount").set((roomCountSnap.value as int) + 1);
       await room.set({
         "ownerID": currentUser.uid,
-        "ownerScore": ownerScoreSnap.value as int,
+        "ownerScore": ownerScore,
         "category": selectedCategory,
         "language": selectedLanguage,
         "title": title,
@@ -56,8 +66,10 @@ class _CreateRoomState extends State<CreateRoom> {
       await FirebaseDatabase.instance
           .ref("categories/$selectedCategory/${room.key}")
           .set({"timeStamp": ServerValue.timestamp});
+      await userDb.child("roomCount").set((roomCountSnap.value as int) + 1);
     } catch (e) {
-      return "Something went wrong. Please try again later.";
+      print("Error creating room: $e");
+      return "Error: $e";
     }
 
     return "Succesfully created the room.";
