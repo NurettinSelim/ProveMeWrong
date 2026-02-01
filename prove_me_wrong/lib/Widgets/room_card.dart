@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:prove_me_wrong/Widgets/report.dart';
 import 'package:prove_me_wrong/core/data/room_data.dart';
 import 'package:prove_me_wrong/core/theme/app_theme.dart';
+import 'package:prove_me_wrong/Screens/chat_screen.dart';
 
 class RoomCard extends StatelessWidget {
   const RoomCard({
@@ -69,7 +70,12 @@ class RoomCard extends StatelessWidget {
               ),
               TextButton(
                 onPressed: () {
-                  onEnter?.call(room.roomId);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute<void>(
+                      builder: (context) => ChatScreen(rooms: room),
+                    ),
+                  );
                 },
                 child: Text(
                   "Enter",
