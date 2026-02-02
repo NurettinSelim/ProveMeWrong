@@ -50,19 +50,13 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Future<void> deleteRoom(String roomId) async {
     final room = widget.rooms;
-    
-    // Room'u sil
-    await FirebaseDatabase.instance.ref("rooms/$roomId").remove();
-    
-    // Kullanıcının room referansını sil
-    await userDb.child("rooms/$roomId").remove();
-    
-    // Kategoriden room'u sil
+
     await FirebaseDatabase.instance
-        .ref("categories/${room.category.name}/$roomId")
+        .ref("categories/${room.category.value}/$roomId")
         .remove();
-    
-    // Room count'u azalt
+
+    await userDb.child("rooms/$roomId").remove();
+
     final roomCountSnapshot = await userDb.child("roomCount").get();
     if (roomCountSnapshot.exists) {
       final currentCount = roomCountSnapshot.value as int;
