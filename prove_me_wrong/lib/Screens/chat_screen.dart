@@ -1,9 +1,11 @@
+//chatscreen
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:prove_me_wrong/core/theme/app_theme.dart';
 import 'package:prove_me_wrong/core/data/room_data.dart';
 import 'package:prove_me_wrong/widgets/chat_bubble.dart';
+import 'package:prove_me_wrong/widgets/rate_card.dart';
 
 //rulesda $message .write kısmında: null && root.child('users/' + auth.uid + '/rooms/' + $id).exists() && newData.child('senderId').val() === auth.uid
 
@@ -21,14 +23,21 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final currentUser = FirebaseAuth.instance.currentUser;
+  late final String roomId;
 
   late final userDb = FirebaseDatabase.instance.ref(
     "users/${currentUser!.uid}",
   );
 
+  final userID = FirebaseAuth
+      .instance
+      .currentUser!
+      .uid; //ownerID yaparsam sadece room sahibi mesaj atabilir, o yüzden direkt uygulamayı açan kişinin idsini alıyorum
+
   @override
   void initState() {
     super.initState();
+    roomId = widget.rooms.roomId;
   }
 
   final TextEditingController messageController = TextEditingController();
@@ -39,11 +48,49 @@ class _ChatScreenState extends State<ChatScreen> {
     super.dispose();
   }
 
+  Future<void> deleteRoom(String roomId) async {
+    final room = widget.rooms;
+    
+    // Room'u sil
+    await FirebaseDatabase.instance.ref("rooms/$roomId").remove();
+    
+    // Kullanıcının room referansını sil
+    await userDb.child("rooms/$roomId").remove();
+    
+    // Kategoriden room'u sil
+    await FirebaseDatabase.instance
+        .ref("categories/${room.category.name}/$roomId")
+        .remove();
+    
+    // Room count'u azalt
+    final roomCountSnapshot = await userDb.child("roomCount").get();
+    if (roomCountSnapshot.exists) {
+      final currentCount = roomCountSnapshot.value as int;
+      if (currentCount > 0) {
+        await userDb.child("roomCount").set(currentCount - 1);
+      }
+    }
+  }
+
+  Future<void> openRateCard() async {
+    final int? rating = await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Rate Your Opponent", textAlign: TextAlign.center),
+          content: RateCard(raterId: userID),
+        );
+      },
+    );
+    if (rating != null) {
+      await deleteRoom(roomId);
+      if (mounted) {
+        Navigator.pop(context); // Chat ekranından çık
+      }
+    }
+  }
+
   Future<void> sendMessage(String text) async {
-    final userID = FirebaseAuth
-        .instance
-        .currentUser!
-        .uid; //ownerID yaparsam sadece room sahibi mesaj atabilir, o yüzden direkt uygulamayı açan kişinin idsini alıyorum
     final roomId = widget.rooms.roomId;
 
     final messageRef = FirebaseDatabase.instance
@@ -97,11 +144,63 @@ class _ChatScreenState extends State<ChatScreen> {
               ],
             ),
             Spacer(),
-            IconButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              icon: Icon(Icons.arrow_back, color: AppColors.onSecondary),
+            TextButton(
+              onPressed: () => showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text("Are you sure?"),
+                  content: const Text(
+                    "Session will be over and you can rate your opponent.",
+                  ),
+                  actions: <Widget>[
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context); // Are you sure? dialogunu kapat
+                        openRateCard();
+                      },
+
+                      style: ButtonStyle(
+                        foregroundColor: WidgetStatePropertyAll<Color>(
+                          AppColors.primary,
+                        ),
+                      ),
+                      child: const Text("Flee"),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: ButtonStyle(
+                        foregroundColor: WidgetStatePropertyAll<Color>(
+                          AppColors.onPrimary,
+                        ),
+                        backgroundColor: WidgetStatePropertyAll(
+                          AppColors.primary,
+                        ),
+                      ),
+                      child: const Text("Stay"),
+                    ),
+                  ],
+                ),
+              ),
+              style: ButtonStyle(
+                padding: WidgetStatePropertyAll<EdgeInsetsGeometry>(
+                  EdgeInsetsGeometry.all(16),
+                ),
+                alignment: Alignment.center,
+                backgroundColor: WidgetStatePropertyAll<Color>(
+                  AppColors.onPrimary,
+                ),
+                textStyle: WidgetStatePropertyAll<TextStyle>(
+                  TextStyle(
+                    fontSize: 16,
+                    //fontWeight: FontWeight.bold,
+                    fontFamily: "Azer29LT",
+                  ),
+                ),
+                foregroundColor: WidgetStatePropertyAll<Color>(
+                  AppColors.secondary,
+                ),
+              ),
+              child: Text("Flee From the Fight"),
             ),
           ],
         ),

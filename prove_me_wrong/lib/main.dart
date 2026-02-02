@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prove_me_wrong/Screens/home_screen.dart';
 import 'package:prove_me_wrong/Screens/rooms_screen.dart';
 import 'package:prove_me_wrong/Screens/sign_up.dart';
-import 'package:prove_me_wrong/Widgets/footer.dart';
+import 'package:prove_me_wrong/widgets/footer.dart';
 import 'package:prove_me_wrong/core/data/screens_data.dart';
 import 'package:prove_me_wrong/core/theme/app_theme.dart';
 

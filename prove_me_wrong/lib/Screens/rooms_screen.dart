@@ -3,11 +3,12 @@ import 'dart:collection';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-import 'package:prove_me_wrong/Widgets/room_card.dart';
+import 'package:prove_me_wrong/widgets/room_card.dart';
 import 'package:prove_me_wrong/core/data/category_data.dart';
 import 'package:prove_me_wrong/core/data/language_data.dart';
 import 'package:prove_me_wrong/core/data/room_data.dart';
 import 'package:prove_me_wrong/core/theme/app_theme.dart';
+import 'package:prove_me_wrong/Screens/chat_screen.dart';
 
 class RoomsScreen extends StatefulWidget {
   const RoomsScreen({super.key});
@@ -24,6 +25,19 @@ class _RoomsScreenState extends State<RoomsScreen> {
   );
 
   List<Room> rooms = [];
+
+  void onEnter(String roomID) {
+    Navigator.push(
+      context,
+      MaterialPageRoute<void>(
+        builder: (context) => ChatScreen(
+          rooms: rooms.firstWhere((element) {
+            return element.roomId == roomID;
+          }),
+        ),
+      ),
+    );
+  }
 
   @override
   void initState() {
@@ -45,6 +59,7 @@ class _RoomsScreenState extends State<RoomsScreen> {
       }
       rooms.add(
         Room(
+          roomId: roomSnap.key as String,
           ownerScore: roomMap["ownerScore"],
           title: roomMap["title"],
           category: category,
@@ -93,13 +108,9 @@ class _RoomsScreenState extends State<RoomsScreen> {
                   clipBehavior: Clip.none,
                   children: [
                     RoomCard(
-                      room: Room(
-                        category: rooms[index].category,
-                        language: rooms[index].language,
-                        ownerScore: rooms[index].ownerScore,
-                        title: rooms[index].title,
-                      ),
+                      room: rooms[index],
                       showPopUp: false,
+                      onEnter: onEnter,
                     ),
                     Positioned(
                       top: -15,
@@ -107,16 +118,16 @@ class _RoomsScreenState extends State<RoomsScreen> {
                       child: Stack(
                         alignment: .center,
                         children: [
-                          Icon(
-                            Icons.circle_rounded,
-                            color: Colors.red,
-                            size: 32,
+                          Image.asset(
+                            "lib/assets/icons/s_filled_tomato.png",
+                            width: 32,
+                            height: 32,
                           ),
                           Text(
                             "570",
                             style: TextStyle(
                               fontFamily: "Azer29LT",
-                              color: AppColors.onSecondary,
+                              color: AppColors.onPrimary,
                             ),
                           ),
                         ],
