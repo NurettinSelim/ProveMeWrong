@@ -3,6 +3,7 @@ import 'dart:collection';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:prove_me_wrong/Screens/chat_screen.dart';
 import 'package:prove_me_wrong/widgets/category_grid.dart';
 import 'package:prove_me_wrong/widgets/room_card.dart';
 import 'package:prove_me_wrong/core/data/category_data.dart';
@@ -33,22 +34,35 @@ class _HomeScreenState extends State<HomeScreen> {
     final result = await roomsDb.child("$roomId/guestID").runTransaction((
       value,
     ) {
-      if (value != null) Transaction.abort();
+      // Eğer guestID zaten varsa, abort et
+      if (value != null) {
+        return Transaction.abort();
+      }
       return Transaction.success(currentUser.uid);
     });
 
-    await FirebaseDatabase.instance
-        .ref("users/${currentUser.uid}/rooms")
-        .push()
-        .set(roomId);
-
     final String snackMessage;
     if (result.committed) {
-      rooms.removeAt(
-        rooms.indexWhere((element) {
-          return element.roomId == roomId;
-        }),
-      );
+      // Room'a başarıyla katıldık - kullanıcının rooms listesine ekle
+      await FirebaseDatabase.instance
+          .ref("users/${currentUser.uid}/rooms/$roomId")
+          .set(roomId);
+
+      // Room bilgilerini al ve chat ekranına yönlendir
+      final roomIndex = rooms.indexWhere((element) => element.roomId == roomId);
+      if (roomIndex != -1) {
+        final room = rooms[roomIndex];
+        rooms.removeAt(roomIndex);
+
+        if (context.mounted) {
+          Navigator.push(
+            context,
+            MaterialPageRoute<void>(
+              builder: (context) => ChatScreen(rooms: room),
+            ),
+          );
+        }
+      }
       snackMessage = "Succesfully joined the room.";
     } else {
       snackMessage = "Someone joined before you.";
@@ -72,10 +86,15 @@ class _HomeScreenState extends State<HomeScreen> {
 
   bool isLoading = false;
   Future<void> loadRooms() async {
+    print("load'a girdi");
     if (isLoading) return;
     isLoading = true;
     final categoriesDb = FirebaseDatabase.instance.ref("categories");
-
+    if (categoryList.categories.length == 0) {
+      isLoading = false;
+      setState(() {});
+      return;
+    }
     for (int i = 0; i < 10; i++) {
       final category =
           categoryList.categories[i % categoryList.categories.length];
@@ -104,13 +123,13 @@ class _HomeScreenState extends State<HomeScreen> {
       final roomSnap = await roomsDb
           .child(categorySnap.children.first.key as String)
           .get();
+      if (!roomSnap.exists) continue;
       LinkedHashMap roomMap = roomSnap.value as LinkedHashMap;
       if (roomMap["ownerID"] == currentUser.uid ||
           roomMap["guestID"] == currentUser.uid) {
         i -= 1;
         continue;
       }
-
       rooms.add(
         Room(
           category: Categories.fromString(roomMap["category"])!,

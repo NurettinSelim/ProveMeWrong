@@ -70,12 +70,7 @@ class RoomCard extends StatelessWidget {
               ),
               TextButton(
                 onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute<void>(
-                      builder: (context) => ChatScreen(rooms: room),
-                    ),
-                  );
+                  onEnter?.call(room.roomId);
                 },
                 child: Text(
                   "Enter",
