@@ -48,6 +48,20 @@ class _HomeScreenState extends State<HomeScreen> {
           .ref("users/${currentUser.uid}/rooms/$roomId")
           .set(roomId);
 
+      final roomCategory = rooms
+          .singleWhere((element) => element.roomId == roomId)
+          .category
+          .value;
+
+      await FirebaseDatabase.instance
+          .ref("categories/$roomCategory/$roomId")
+          .remove();
+
+      final userDb = FirebaseDatabase.instance.ref("users/${currentUser.uid}");
+      final roomCountSnap = await userDb.child("roomCount").get();
+
+      await userDb.child("roomCount").set((roomCountSnap.value as int) + 1);
+
       // Room bilgilerini al ve chat ekranına yönlendir
       final roomIndex = rooms.indexWhere((element) => element.roomId == roomId);
       if (roomIndex != -1) {
@@ -125,8 +139,7 @@ class _HomeScreenState extends State<HomeScreen> {
           .get();
       if (!roomSnap.exists) continue;
       LinkedHashMap roomMap = roomSnap.value as LinkedHashMap;
-      if (roomMap["ownerID"] == currentUser.uid ||
-          roomMap["guestID"] == currentUser.uid) {
+      if (roomMap["ownerID"] == currentUser.uid) {
         i -= 1;
         continue;
       }
