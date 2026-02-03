@@ -2,20 +2,20 @@
 
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+//import 'package:firebase_auth/firebase_auth.dart';
 import 'package:prove_me_wrong/core/theme/app_theme.dart';
 
 class RateCard extends StatefulWidget {
-  final String raterId;
+  final String ratedId;
 
-  const RateCard({super.key, required this.raterId});
+  const RateCard({super.key, required this.ratedId});
 
   @override
   State<RateCard> createState() => _RateCardState();
 }
 
 class _RateCardState extends State<RateCard> {
-  final userID = FirebaseAuth.instance.currentUser!.uid;
+  //final userID = FirebaseAuth.instance.currentUser!.uid;
 
   Future<void> calculateRate(String id, int newScore) async {
     //roomdaki ownerScoreu da güncellemek lazım
@@ -40,8 +40,6 @@ class _RateCardState extends State<RateCard> {
       return Transaction.success(data);
     });
   }
-
-  Future<void> closeRoom() async {}
 
   @override
   Widget build(BuildContext context) {
@@ -85,7 +83,7 @@ class _RateCardState extends State<RateCard> {
             TextButton(
               onPressed: () {
                 final addScore = selectedIndex + 1;
-                calculateRate(userID, addScore);
+                calculateRate(widget.ratedId, addScore);
                 Navigator.pop(context, addScore);
               },
               child: const Text(
