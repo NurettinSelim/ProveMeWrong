@@ -30,10 +30,10 @@ class _CreateRoomState extends State<CreateRoom> {
     DataSnapshot roomCountSnap;
     DataSnapshot ownerScoreSnap;
     int ownerScore;
-    
+
     try {
       roomCountSnap = await userDb.child("roomCount").get();
-      
+
       // Önce rating/score'u kontrol et, yoksa score'u kullan
       ownerScoreSnap = await userDb.child("rating/score").get();
       if (ownerScoreSnap.exists) {
@@ -173,7 +173,10 @@ class _CreateRoomState extends State<CreateRoom> {
                         items: Categories.values.map((cat) {
                           return DropdownMenuItem<Categories>(
                             value: cat,
-                            child: Text(cat.value),
+                            child: Text(
+                              cat.value,
+                              style: TextStyle(color: AppColors.onPrimary),
+                            ),
                           );
                         }).toList(),
                         onChanged: (value) {
@@ -224,7 +227,10 @@ class _CreateRoomState extends State<CreateRoom> {
                         items: Languages.values.map((lang) {
                           return DropdownMenuItem<Languages>(
                             value: lang,
-                            child: Text(lang.value),
+                            child: Text(
+                              lang.value,
+                              style: TextStyle(color: AppColors.onPrimary),
+                            ),
                           );
                         }).toList(),
                         onChanged: (value) {
