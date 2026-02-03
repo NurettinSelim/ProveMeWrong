@@ -48,6 +48,10 @@ class _ChatScreenState extends State<ChatScreen> {
     super.dispose();
   }
 
+  String get otherUserId => widget.rooms.ownerId == userID
+      ? widget.rooms.guestId
+      : widget.rooms.ownerId;
+
   Future<void> deleteRoom(String roomId) async {
     final room = widget.rooms;
 
@@ -72,7 +76,7 @@ class _ChatScreenState extends State<ChatScreen> {
       builder: (context) {
         return AlertDialog(
           title: const Text("Rate Your Opponent", textAlign: TextAlign.center),
-          content: RateCard(raterId: userID),
+          content: RateCard(ratedId: otherUserId),
         );
       },
     );
