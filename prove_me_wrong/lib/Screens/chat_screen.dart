@@ -38,6 +38,21 @@ class _ChatScreenState extends State<ChatScreen> {
   void initState() {
     super.initState();
     roomId = widget.rooms.roomId;
+    final room = widget.rooms;
+    FirebaseDatabase.instance.ref("rooms/$roomId/lefter").onValue.listen((
+      event,
+    ) async {
+      String lefterID = event.snapshot.value as String == 'g'
+          ? room.guestId
+          : room.ownerId;
+      if (currentUser!.uid != lefterID) {
+        await openRateCard();
+        deleteRoom(roomId);
+      }
+      await FirebaseDatabase.instance
+          .ref("user/${currentUser!.uid}/rooms/$roomId")
+          .remove();
+    });
   }
 
   final TextEditingController messageController = TextEditingController();
@@ -81,7 +96,16 @@ class _ChatScreenState extends State<ChatScreen> {
       },
     );
     if (rating != null) {
-      await deleteRoom(roomId);
+      FirebaseDatabase.instance.ref("rooms/$roomId/lefter").runTransaction((
+        value,
+      ) {
+        if (currentUser!.uid == widget.rooms.ownerId) {
+          return Transaction.success(value = 'o');
+        } else if (currentUser!.uid == widget.rooms.guestId) {
+          return Transaction.success(value = 'g');
+        }
+        return Transaction.abort();
+      });
       if (mounted) {
         Navigator.pop(context); // Chat ekranından çık
       }
