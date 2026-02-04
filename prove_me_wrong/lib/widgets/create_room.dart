@@ -51,22 +51,28 @@ class _CreateRoomState extends State<CreateRoom> {
       return "You can only have 7 rooms at the same time.";
     }
 
-    final roomsRef = FirebaseDatabase.instance.ref("rooms");
-    final room = roomsRef.push();
-
     try {
-      await room.set({
+      final Map<String, Object> dbUpdates = {};
+
+      final roomsRef = FirebaseDatabase.instance.ref("rooms");
+      final roomKey = roomsRef.push().key!;
+      final userKey = userDb.child("rooms").push();
+      dbUpdates["rooms/$roomKey"] = {
         "ownerID": currentUser.uid,
         "ownerScore": ownerScore,
         "category": selectedCategory,
         "language": selectedLanguage,
         "title": title,
-      });
-      await userDb.child("rooms").push().set(room.key);
-      await FirebaseDatabase.instance
-          .ref("categories/$selectedCategory/${room.key}")
-          .set({"timeStamp": ServerValue.timestamp});
-      await userDb.child("roomCount").set((roomCountSnap.value as int) + 1);
+      };
+      dbUpdates["users/${currentUser.uid}/rooms/$userKey"] = roomKey;
+      dbUpdates["users/${currentUser.uid}/roomCount"] =
+          (roomCountSnap.value as int) + 1;
+
+      dbUpdates["categories/$selectedCategory/$roomKey"] = {
+        "timeStamp": ServerValue.timestamp,
+      };
+
+      FirebaseDatabase.instance.ref().update(dbUpdates);
     } catch (e) {
       print("Error creating room: $e");
       return "Error: $e";
