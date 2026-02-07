@@ -81,11 +81,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     User currentUser = FirebaseAuth.instance.currentUser!;
     await FirebaseDatabase.instance.ref("users/${currentUser.uid}").set({
       "roomCount": 0,
-    });
-    await FirebaseDatabase.instance.ref("users/${currentUser.uid}/rating").set({
-      "total": 0,
-      "score": 0,
-      "count": 0,
+      "rating": {"total": 0, "score": 0, "count": 0},
     });
   }
 

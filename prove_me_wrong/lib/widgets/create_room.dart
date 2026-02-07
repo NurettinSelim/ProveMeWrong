@@ -56,7 +56,7 @@ class _CreateRoomState extends State<CreateRoom> {
 
       final roomsRef = FirebaseDatabase.instance.ref("rooms");
       final roomKey = roomsRef.push().key!;
-      final userKey = userDb.child("rooms").push();
+
       dbUpdates["rooms/$roomKey"] = {
         "ownerID": currentUser.uid,
         "ownerScore": ownerScore,
@@ -64,7 +64,7 @@ class _CreateRoomState extends State<CreateRoom> {
         "language": selectedLanguage,
         "title": title,
       };
-      dbUpdates["users/${currentUser.uid}/rooms/$userKey"] = roomKey;
+      dbUpdates["users/${currentUser.uid}/rooms/$roomKey"] = roomKey;
       dbUpdates["users/${currentUser.uid}/roomCount"] =
           (roomCountSnap.value as int) + 1;
 
@@ -72,7 +72,7 @@ class _CreateRoomState extends State<CreateRoom> {
         "timeStamp": ServerValue.timestamp,
       };
 
-      FirebaseDatabase.instance.ref().update(dbUpdates);
+      await FirebaseDatabase.instance.ref().update(dbUpdates);
     } catch (e) {
       print("Error creating room: $e");
       return "Error: $e";
