@@ -1,9 +1,11 @@
 //chatscreen
-import 'package:flutter/material.dart';
+import 'dart:collection';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:prove_me_wrong/core/theme/app_theme.dart';
+import 'package:flutter/material.dart';
 import 'package:prove_me_wrong/core/data/room_data.dart';
+import 'package:prove_me_wrong/core/theme/app_theme.dart';
 import 'package:prove_me_wrong/widgets/chat_bubble.dart';
 import 'package:prove_me_wrong/widgets/rate_card.dart';
 
@@ -22,6 +24,7 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
+  bool isRoomClosed = false;
   final currentUser = FirebaseAuth.instance.currentUser;
   late final String roomId;
 
@@ -33,25 +36,22 @@ class _ChatScreenState extends State<ChatScreen> {
       .instance
       .currentUser!
       .uid; //ownerID yaparsam sadece room sahibi mesaj atabilir, o yüzden direkt uygulamayı açan kişinin idsini alıyorum
+  late final Stream<DatabaseEvent> messageStream;
 
   @override
   void initState() {
     super.initState();
     roomId = widget.rooms.roomId;
+    messageStream = FirebaseDatabase.instance
+        .ref("rooms/$roomId/messages")
+        .orderByChild("timeStamp")
+        .onValue;
     final room = widget.rooms;
-    FirebaseDatabase.instance.ref("rooms/$roomId/lefter").onValue.listen((
+    FirebaseDatabase.instance.ref("rooms/$roomId/isClosed").onValue.listen((
       event,
-    ) async {
-      String lefterID = event.snapshot.value as String == 'g'
-          ? room.guestId
-          : room.ownerId;
-      if (currentUser!.uid != lefterID) {
-        await openRateCard();
-        deleteRoom(roomId);
-      }
-      await FirebaseDatabase.instance
-          .ref("user/${currentUser!.uid}/rooms/$roomId")
-          .remove();
+    ) {
+      isRoomClosed = (event.snapshot.value as bool?) ?? false;
+      setState(() {});
     });
   }
 
@@ -67,25 +67,8 @@ class _ChatScreenState extends State<ChatScreen> {
       ? widget.rooms.guestId
       : widget.rooms.ownerId;
 
-  Future<void> deleteRoom(String roomId) async {
-    final room = widget.rooms;
-
-    await FirebaseDatabase.instance
-        .ref("categories/${room.category.value}/$roomId")
-        .remove();
-
-    await userDb.child("rooms/$roomId").remove();
-
-    final roomCountSnapshot = await userDb.child("roomCount").get();
-    if (roomCountSnapshot.exists) {
-      final currentCount = roomCountSnapshot.value as int;
-      if (currentCount > 0) {
-        await userDb.child("roomCount").set(currentCount - 1);
-      }
-    }
-  }
-
-  Future<void> openRateCard() async {
+  //  Puan verme işlemi tamamlandıysa TRUE döndürüyor
+  Future<bool> giveRating() async {
     final int? rating = await showDialog(
       context: context,
       builder: (context) {
@@ -95,21 +78,51 @@ class _ChatScreenState extends State<ChatScreen> {
         );
       },
     );
-    if (rating != null) {
-      FirebaseDatabase.instance.ref("rooms/$roomId/lefter").runTransaction((
-        value,
-      ) {
-        if (currentUser!.uid == widget.rooms.ownerId) {
-          return Transaction.success(value = 'o');
-        } else if (currentUser!.uid == widget.rooms.guestId) {
-          return Transaction.success(value = 'g');
-        }
-        return Transaction.abort();
-      });
-      if (mounted) {
-        Navigator.pop(context); // Chat ekranından çık
-      }
+
+    if (rating == null) return false;
+
+    final ratingTransaction = await FirebaseDatabase.instance
+        .ref("users/$otherUserId/rating")
+        .runTransaction((mutableData) {
+          print(mutableData.runtimeType);
+          var data = mutableData as LinkedHashMap;
+
+          int totalS = (data['total'] as int) + rating;
+
+          int count = (data['count'] as int) + 1;
+
+          double avg = totalS / count;
+
+          data["total"] = totalS;
+
+          data["count"] = count;
+
+          data["score"] = avg;
+
+          data["roomID"] = roomId;
+
+          return Transaction.success(data);
+        });
+
+    if (!ratingTransaction.committed) return false;
+
+    Map<String, Object?> dbUpdates = {};
+    dbUpdates["users/$userID/roomCount"] = ServerValue.increment(-1);
+    dbUpdates["users/$userID/rooms/$roomId"] = null;
+    if (isRoomClosed) {
+      dbUpdates["rooms/$roomId/"] = null;
+    } else {
+      dbUpdates["rooms/$roomId/isClosed"] = true;
     }
+
+    try {
+      await FirebaseDatabase.instance.ref().update(dbUpdates);
+    } catch (e) {
+      print(e.toString());
+      return false;
+    }
+
+    return true;
   }
 
   Future<void> sendMessage(String text) async {
@@ -125,14 +138,6 @@ class _ChatScreenState extends State<ChatScreen> {
       "senderId": userID,
     });
     messageController.clear();
-  }
-
-  Stream<DatabaseEvent> messageStream() {
-    final roomid = widget.rooms.roomId;
-    return FirebaseDatabase.instance
-        .ref("rooms/$roomid/messages")
-        .orderByChild("timeStamp")
-        .onValue; //değişiklik olması durumunda
   }
 
   @override
@@ -176,9 +181,9 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                   actions: <Widget>[
                     TextButton(
-                      onPressed: () {
+                      onPressed: () async {
                         Navigator.pop(context); // Are you sure? dialogunu kapat
-                        openRateCard();
+                        final success = await giveRating();
                       },
 
                       style: ButtonStyle(
@@ -233,7 +238,7 @@ class _ChatScreenState extends State<ChatScreen> {
           children: [
             Expanded(
               child: StreamBuilder(
-                stream: messageStream(),
+                stream: messageStream,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Center(child: CircularProgressIndicator());
@@ -254,10 +259,6 @@ class _ChatScreenState extends State<ChatScreen> {
 
                   final data = snapshot.data!.snapshot.value as Map;
                   final messages = data.values.toList();
-
-                  messages.sort(
-                    (a, b) => a["timeStamp"].compareTo(b["timeStamp"]),
-                  );
 
                   return ListView.builder(
                     padding: EdgeInsets.all(12),
@@ -281,6 +282,11 @@ class _ChatScreenState extends State<ChatScreen> {
                 },
               ),
             ),
+            isRoomClosed
+                ? Text(
+                    "Room is closed. You can rate the other user by leaving the room.",
+                  )
+                : SizedBox.shrink(),
           ],
         ),
       ),
@@ -291,6 +297,7 @@ class _ChatScreenState extends State<ChatScreen> {
           children: [
             Expanded(
               child: TextField(
+                enabled: !isRoomClosed,
                 controller: messageController,
                 decoration: InputDecoration(
                   hintText: "Start the Fight...",
@@ -318,10 +325,12 @@ class _ChatScreenState extends State<ChatScreen> {
             SizedBox(width: 8),
             IconButton(
               icon: Icon(Icons.send, color: AppColors.onPrimary),
-              onPressed: () {
-                final text = messageController.text;
-                sendMessage(text);
-              },
+              onPressed: !isRoomClosed
+                  ? () {
+                      final text = messageController.text;
+                      sendMessage(text);
+                    }
+                  : null,
             ),
           ],
         ),
