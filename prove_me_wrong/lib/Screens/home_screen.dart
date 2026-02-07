@@ -4,12 +4,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:prove_me_wrong/Screens/chat_screen.dart';
-import 'package:prove_me_wrong/widgets/category_grid.dart';
-import 'package:prove_me_wrong/widgets/room_card.dart';
 import 'package:prove_me_wrong/core/data/category_data.dart';
 import 'package:prove_me_wrong/core/data/language_data.dart';
 import 'package:prove_me_wrong/core/data/room_data.dart';
 import 'package:prove_me_wrong/core/theme/app_theme.dart';
+import 'package:prove_me_wrong/widgets/category_grid.dart';
+import 'package:prove_me_wrong/widgets/room_card.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -31,6 +31,10 @@ class _HomeScreenState extends State<HomeScreen> {
   final currentUser = FirebaseAuth.instance.currentUser!;
 
   void onEnter(String roomId) async {
+    final selectedRoom = rooms.singleWhere(
+      (element) => element.roomId == roomId,
+    );
+
     final result = await roomsDb.child("$roomId/guestID").runTransaction((
       value,
     ) {
@@ -38,45 +42,32 @@ class _HomeScreenState extends State<HomeScreen> {
       if (value != null) {
         return Transaction.abort();
       }
+
       return Transaction.success(currentUser.uid);
     });
 
     final String snackMessage;
     if (result.committed) {
-      // Room'a başarıyla katıldık - kullanıcının rooms listesine ekle
-      await FirebaseDatabase.instance
-          .ref("users/${currentUser.uid}/rooms/$roomId")
-          .set(roomId);
-
-      final roomCategory = rooms
-          .singleWhere((element) => element.roomId == roomId)
-          .category
-          .value;
-
-      await FirebaseDatabase.instance
-          .ref("categories/$roomCategory/$roomId")
-          .remove();
-
-      final userDb = FirebaseDatabase.instance.ref("users/${currentUser.uid}");
-      final roomCountSnap = await userDb.child("roomCount").get();
-
-      await userDb.child("roomCount").set((roomCountSnap.value as int) + 1);
-
+      Map<String, Object?> dbUpdates = {};
+      dbUpdates["users/${currentUser.uid}/rooms/$roomId"] = roomId;
+      dbUpdates["users/${currentUser.uid}/roomCount"] = ServerValue.increment(
+        1,
+      );
+      dbUpdates["categories/${selectedRoom.category.value}/$roomId"] = null;
+      FirebaseDatabase.instance.ref().update(dbUpdates);
       // Room bilgilerini al ve chat ekranına yönlendir
-      final roomIndex = rooms.indexWhere((element) => element.roomId == roomId);
-      if (roomIndex != -1) {
-        final room = rooms[roomIndex];
-        rooms.removeAt(roomIndex);
-
-        if (context.mounted) {
-          Navigator.push(
-            context,
-            MaterialPageRoute<void>(
-              builder: (context) => ChatScreen(rooms: room),
-            ),
-          );
-        }
+      rooms.removeWhere((element) {
+        return element.roomId == selectedRoom.roomId;
+      });
+      if (context.mounted) {
+        Navigator.push(
+          context,
+          MaterialPageRoute<void>(
+            builder: (context) => ChatScreen(rooms: selectedRoom),
+          ),
+        );
       }
+
       snackMessage = "Succesfully joined the room.";
     } else {
       snackMessage = "Someone joined before you.";
@@ -104,7 +95,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if (isLoading) return;
     isLoading = true;
     final categoriesDb = FirebaseDatabase.instance.ref("categories");
-    if (categoryList.categories.length == 0) {
+    if (categoryList.categories.isEmpty) {
       isLoading = false;
       setState(() {});
       return;
