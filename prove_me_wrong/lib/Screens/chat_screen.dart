@@ -4,6 +4,8 @@ import 'dart:collection';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:prove_me_wrong/core/data/message_adapter.dart';
 import 'package:prove_me_wrong/core/data/room_data.dart';
 import 'package:prove_me_wrong/core/theme/app_theme.dart';
 import 'package:prove_me_wrong/widgets/chat_bubble.dart';
@@ -46,7 +48,7 @@ class _ChatScreenState extends State<ChatScreen> {
         .ref("rooms/$roomId/messages")
         .orderByChild("timeStamp")
         .onValue;
-    final room = widget.rooms;
+    //final room = widget.rooms;
     FirebaseDatabase.instance.ref("rooms/$roomId/isClosed").onValue.listen((
       event,
     ) {
@@ -61,6 +63,7 @@ class _ChatScreenState extends State<ChatScreen> {
   void dispose() {
     messageController.dispose();
     super.dispose();
+    //hive clean'i buna koymalı mıyım
   }
 
   String get otherUserId => widget.rooms.ownerId == userID
@@ -183,7 +186,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     TextButton(
                       onPressed: () async {
                         Navigator.pop(context); // Are you sure? dialogunu kapat
-                        final success = await giveRating();
+                        await giveRating(); //normalde final success = await giveRating() idi ancak kullanılmadığı için SİLDİMMM :)
                       },
 
                       style: ButtonStyle(
@@ -237,14 +240,13 @@ class _ChatScreenState extends State<ChatScreen> {
         child: Column(
           children: [
             Expanded(
-              child: StreamBuilder(
-                stream: messageStream,
+              child: FutureBuilder(
+                future: Hive.openBox<Message>('messages_$roomId'),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
-                  }
-                  if (!snapshot.hasData ||
-                      snapshot.data!.snapshot.value == null) {
+                    return CircularProgressIndicator(color: AppColors.primary);
+                  } else if (!snapshot.hasData ||
+                      snapshot.data!.values == null) {
                     return Center(
                       child: Text(
                         "Start the Conversation",
@@ -256,29 +258,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       ),
                     );
                   }
-
-                  final data = snapshot.data!.snapshot.value as Map;
-                  final messages = data.values.toList();
-
-                  return ListView.builder(
-                    padding: EdgeInsets.all(12),
-                    itemCount: messages.length,
-                    itemBuilder: (context, index) {
-                      final msg = messages[index];
-                      final isMe =
-                          msg["senderId"] ==
-                          FirebaseAuth.instance.currentUser!.uid;
-                      return Align(
-                        alignment: isMe
-                            ? Alignment.centerRight
-                            : Alignment.centerLeft,
-                        child: ChatBubble(
-                          text: msg["message"],
-                          isSentByMe: isMe,
-                        ),
-                      );
-                    },
-                  );
+                  return ValueListenableBuilder(valueListenable: valueListenable, builder: builder)
                 },
               ),
             ),

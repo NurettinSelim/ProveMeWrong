@@ -91,13 +91,13 @@ class _RoomsScreenState extends State<RoomsScreen> {
     return Padding(
       padding: const EdgeInsets.all(12.0),
       child: Column(
-        crossAxisAlignment: .start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             "My Rooms(${rooms.length}/7)",
             style: TextStyle(
               fontFamily: "SpaceMono",
-              fontStyle: .italic,
+              fontStyle: FontStyle.italic,
               fontSize: 32,
               color: Colors.black,
             ),
@@ -120,7 +120,7 @@ class _RoomsScreenState extends State<RoomsScreen> {
                       top: -15,
                       right: -10,
                       child: Stack(
-                        alignment: .center,
+                        alignment: Alignment.center,
                         children: [
                           Image.asset(
                             "lib/assets/icons/s_filled_tomato.png",

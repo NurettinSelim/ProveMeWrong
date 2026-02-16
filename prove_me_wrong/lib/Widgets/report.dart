@@ -170,7 +170,7 @@ class _ReportWidgetState extends State<ReportWidget> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
       child: Column(
-        crossAxisAlignment: .stretch,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
 
         children: [
           Text(
