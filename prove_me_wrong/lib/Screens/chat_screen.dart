@@ -241,7 +241,7 @@ class _ChatScreenState extends State<ChatScreen> {
           children: [
             Expanded(
               child: FutureBuilder(
-                future: Hive.openBox<Message>('messages_$roomId'),
+                future: Hive.openBox<ChatMessage>('messages_$roomId'),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return CircularProgressIndicator(color: AppColors.primary);
@@ -258,7 +258,8 @@ class _ChatScreenState extends State<ChatScreen> {
                       ),
                     );
                   }
-                  return ValueListenableBuilder(valueListenable: valueListenable, builder: builder)
+                  return Scaffold();
+                  //return ValueListenableBuilder(valueListenable: valueListenable, builder: (context,snapshot) return Scaffold());
                 },
               ),
             ),

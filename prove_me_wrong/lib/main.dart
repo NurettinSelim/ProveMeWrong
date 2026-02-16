@@ -17,8 +17,8 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Hive.initFlutter();
-  Hive.registerAdapter(MessageAdapter());
-
+  Hive.registerAdapter(ChatMessageAdapter());
+  Hive.registerAdapter(RoomMetadataAdapter());
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   runApp(const ProviderScope(child: MaterialApp(home: App())));

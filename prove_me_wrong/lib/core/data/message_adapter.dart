@@ -1,24 +1,46 @@
 import 'package:hive/hive.dart';
 part 'message_adapter.g.dart';
 
-@HiveType(typeId: 1)
-class Message {
+@HiveType(typeId: 0)
+class ChatMessage extends HiveObject {
   @HiveField(0)
-  final String senderId;
+  final String id;
 
   @HiveField(1)
-  final DateTime timeStamp;
+  final String roomId;
 
   @HiveField(2)
-  final String message;
+  final String senderId;
 
   @HiveField(3)
-  final String messageId;
+  final String message;
 
-  Message({
+  @HiveField(4)
+  final int timestamp;
+
+  ChatMessage({
+    required this.id,
+    required this.roomId,
     required this.senderId,
     required this.message,
-    required this.messageId,
-    required this.timeStamp,
+    required this.timestamp,
+  });
+}
+
+@HiveType(typeId: 1)
+class RoomMetadata extends HiveObject {
+  @HiveField(0)
+  final String roomId;
+
+  @HiveField(1)
+  int lastSyncTimeStamp;
+
+  @HiveField(2)
+  int messageCount;
+
+  RoomMetadata({
+    required this.roomId,
+    required this.lastSyncTimeStamp,
+    this.messageCount = 0,
   });
 }
