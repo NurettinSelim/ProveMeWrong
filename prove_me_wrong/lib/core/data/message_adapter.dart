@@ -12,9 +12,13 @@ class Message {
   @HiveField(2)
   final String message;
 
+  @HiveField(3)
+  final String messageId;
+
   Message({
     required this.senderId,
     required this.message,
+    required this.messageId,
     required this.timeStamp,
   });
 }
