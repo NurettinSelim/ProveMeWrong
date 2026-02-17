@@ -10,6 +10,7 @@ import 'package:prove_me_wrong/core/data/room_data.dart';
 import 'package:prove_me_wrong/core/theme/app_theme.dart';
 import 'package:prove_me_wrong/widgets/chat_bubble.dart';
 import 'package:prove_me_wrong/widgets/rate_card.dart';
+import 'package:prove_me_wrong/core/data/hive_functions.dart';
 
 //rulesda $message .write kısmında: null && root.child('users/' + auth.uid + '/rooms/' + $id).exists() && newData.child('senderId').val() === auth.uid
 
