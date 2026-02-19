@@ -40,22 +40,30 @@ class _ChatScreenState extends State<ChatScreen> {
       .currentUser!
       .uid; //ownerID yaparsam sadece room sahibi mesaj atabilir, o yüzden direkt uygulamayı açan kişinin idsini alıyorum
   late final Stream<DatabaseEvent> messageStream;
+  late Box<ChatMessage> chatMessagesBox;
+  late Box<RoomMetadata> metadataBox;
 
   @override
   void initState() {
     super.initState();
-    roomId = widget.rooms.roomId;
-    messageStream = FirebaseDatabase.instance
-        .ref("rooms/$roomId/messages")
-        .orderByChild("timeStamp")
-        .onValue;
-    //final room = widget.rooms;
-    FirebaseDatabase.instance.ref("rooms/$roomId/isClosed").onValue.listen((
-      event,
-    ) {
-      isRoomClosed = (event.snapshot.value as bool?) ?? false;
-      setState(() {});
-    });
+    _initializeRoom();
+  }
+
+  Future<void> _initializeRoom() async {
+    await initializeRoom(roomId);
+  }
+
+  // İlk açılışta: Hive'dan oku + Firebase'den yeni mesajları sync et
+  Future<void> initializeRoom(String roomId) async {
+    final metadataBox = await getRoomData();
+    final roomBox = await getRoom(roomId);
+
+    RoomMetadata? metadata = metadataBox.get(roomId);
+    if (metadata == null) {
+      metadata = RoomMetadata(roomId: roomId, lastSyncTimeStamp: 0);
+      await metadataBox.put(roomId, metadata);
+    }
+    await syncNewData(roomId, metadata.lastSyncTimeStamp);
   }
 
   final TextEditingController messageController = TextEditingController();
@@ -129,19 +137,127 @@ class _ChatScreenState extends State<ChatScreen> {
     return true;
   }
 
+  //box where messages from roomId is stored
+  Future<Box<ChatMessage>> getRoom(String roomId) async {
+    if (!Hive.isBoxOpen('room_$roomId')) {
+      return await Hive.openBox('room_$roomId');
+    } else {
+      return Hive.box<ChatMessage>('room_$roomId');
+    }
+  }
+
+  // the box of rooms
+  Future<Box<RoomMetadata>> getRoomData() async {
+    if (!Hive.isBoxOpen('room_data')) {
+      return await Hive.openBox('room_data');
+    } else {
+      return Hive.box<RoomMetadata>('room_data');
+    }
+  }
+
+  Future syncNewData(String roomId, int lastSync) async {
+    final snapshot = await FirebaseDatabase.instance
+        .ref('rooms/$roomId/messages')
+        .orderByChild('timeStamp')
+        .startAt(lastSync + 1)
+        .get();
+
+    if (snapshot.exists) {
+      final currentRoom = await getRoom(roomId);
+      final roomBox = await getRoomData();
+
+      final roomData = roomBox.get(roomId);
+
+      final data = snapshot.value as Map<dynamic, dynamic>;
+      for (var messageId in data.entries) {
+        final entry =
+            messageId.value
+                as Map<
+                  dynamic,
+                  dynamic
+                >; // messageId'nin içindeki timestmap, senderid, messages map'lendi
+        final hiveMessage = ChatMessage(
+          id: messageId.key,
+          roomId: roomId,
+          senderId: entry['senderId'],
+          message: entry['message'],
+          timestamp: entry['timeStamp'],
+        );
+
+        await currentRoom.put(roomId, hiveMessage);
+        if (hiveMessage.timestamp > lastSync) {
+          lastSync = hiveMessage.timestamp;
+        }
+      }
+
+      roomData!.lastSyncTimeStamp = lastSync;
+      roomData.messageCount = currentRoom.length;
+      await roomData.save();
+    }
+  }
+
   Future<void> sendMessage(String text) async {
     final roomId = widget.rooms.roomId;
+    final messageTime = ServerValue.timestamp;
 
     final messageRef = FirebaseDatabase.instance
         .ref("rooms/$roomId/messages")
         .push();
 
+    //firebase'e yükleniyor
     await messageRef.set({
       "message": text,
-      "timeStamp": ServerValue.timestamp,
+      "timeStamp": messageTime,
       "senderId": userID,
     });
+
+    final room2Save = await getRoom(roomId);
+    final message2Save = ChatMessage(
+      id: messageRef.key!,
+      roomId: roomId,
+      senderId: userID,
+      message: text,
+      timestamp: messageTime as int,
+    );
+    room2Save.put(roomId, message2Save);
+
+    final roomBox = await getRoomData();
+    final roomData = roomBox.get(roomId);
+
+    roomData?.lastSyncTimeStamp = messageTime as int;
+    roomData?.messageCount = roomBox.length;
+    await roomData!.save();
+
     messageController.clear();
+  }
+
+  Stream<ChatMessage> listenToNewMessages(String roomId, int lastTimestamp) {
+    return FirebaseDatabase.instance
+        .ref('rooms/$roomId/messages')
+        .orderByChild('timestamp')
+        .startAt(lastTimestamp + 1)
+        .onChildAdded
+        .asyncMap((event) async {
+          final data = event.snapshot.value as Map<dynamic, dynamic>;
+          final message = ChatMessage(
+            id: event.snapshot.key!,
+            roomId: roomId,
+            senderId: data['senderId'],
+            message: data['message'],
+            timestamp: data['timestamp'],
+          );
+          final roomBox = await getRoom(roomId);
+
+          if (!roomBox.containsKey(event.snapshot.key)) {
+            await roomBox.put(message.id, message);
+            final metadataBox = await getRoomData();
+            final metadata = metadataBox.get(roomId)!;
+            metadata.lastSyncTimeStamp = message.timestamp;
+            metadata.messageCount = roomBox.length;
+            await metadata.save();
+          }
+          return message;
+        });
   }
 
   @override
@@ -241,13 +357,13 @@ class _ChatScreenState extends State<ChatScreen> {
         child: Column(
           children: [
             Expanded(
-              child: FutureBuilder(
-                future: Hive.openBox<ChatMessage>('messages_$roomId'),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return CircularProgressIndicator(color: AppColors.primary);
-                  } else if (!snapshot.hasData ||
-                      snapshot.data!.values == null) {
+              child: ValueListenableBuilder(
+                valueListenable: chatMessagesBox.listenable(),
+                builder: (context, Box<ChatMessage> box, _) {
+                  final messages = box.values.toList()
+                    ..sort((a, b) => a.timestamp.compareTo(b.timestamp));
+
+                  if (messages.isEmpty) {
                     return Center(
                       child: Text(
                         "Start the Conversation",
@@ -259,8 +375,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       ),
                     );
                   }
-                  return Scaffold();
-                  //return ValueListenableBuilder(valueListenable: valueListenable, builder: (context,snapshot) return Scaffold());
+                  return ListView();
                 },
               ),
             ),
