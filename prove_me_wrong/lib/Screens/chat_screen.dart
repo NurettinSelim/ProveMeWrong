@@ -53,7 +53,6 @@ class _ChatScreenState extends State<ChatScreen> {
     await initializeRoom(roomId);
   }
 
-  // İlk açılışta: Hive'dan oku + Firebase'den yeni mesajları sync et
   Future<void> initializeRoom(String roomId) async {
     final metadataBox = await getRoomData();
     final roomBox = await getRoom(roomId);
@@ -155,6 +154,7 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
+  //
   Future syncNewData(String roomId, int lastSync) async {
     final snapshot = await FirebaseDatabase.instance
         .ref('rooms/$roomId/messages')
@@ -181,7 +181,7 @@ class _ChatScreenState extends State<ChatScreen> {
           roomId: roomId,
           senderId: entry['senderId'],
           message: entry['message'],
-          timestamp: entry['timeStamp'],
+          timestamp: entry['timeStamp'], //serverValue alınıyor
         );
 
         await currentRoom.put(roomId, hiveMessage);
@@ -197,19 +197,10 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> sendMessage(String text) async {
-    final roomId = widget.rooms.roomId;
     final messageTime = ServerValue.timestamp;
-
     final messageRef = FirebaseDatabase.instance
         .ref("rooms/$roomId/messages")
         .push();
-
-    //firebase'e yükleniyor
-    await messageRef.set({
-      "message": text,
-      "timeStamp": messageTime,
-      "senderId": userID,
-    });
 
     final room2Save = await getRoom(roomId);
     final message2Save = ChatMessage(
@@ -223,6 +214,13 @@ class _ChatScreenState extends State<ChatScreen> {
 
     final roomBox = await getRoomData();
     final roomData = roomBox.get(roomId);
+
+    //firebase'e yükleniyor
+    await messageRef.set({
+      "message": text,
+      "timeStamp": messageTime,
+      "senderId": userID,
+    });
 
     roomData?.lastSyncTimeStamp = messageTime as int;
     roomData?.messageCount = roomBox.length;
@@ -375,7 +373,22 @@ class _ChatScreenState extends State<ChatScreen> {
                       ),
                     );
                   }
-                  return ListView();
+                  return ListView.builder(
+                    itemBuilder: (context, index) {
+                      final message = messages[messages.length - 1 - index];
+                      final isMe = message.senderId == userID;
+
+                      return Align(
+                        alignment: isMe
+                            ? Alignment.centerRight
+                            : Alignment.centerLeft,
+                        child: ChatBubble(
+                          text: message.message,
+                          isSentByMe: isMe,
+                        ),
+                      );
+                    },
+                  );
                 },
               ),
             ),
