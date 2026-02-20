@@ -5,15 +5,22 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prove_me_wrong/Screens/home_screen.dart';
 import 'package:prove_me_wrong/Screens/rooms_screen.dart';
 import 'package:prove_me_wrong/Screens/sign_up.dart';
+import 'package:prove_me_wrong/core/data/message_adapter.dart';
 import 'package:prove_me_wrong/widgets/footer.dart';
 import 'package:prove_me_wrong/core/data/screens_data.dart';
 import 'package:prove_me_wrong/core/theme/app_theme.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await Hive.initFlutter();
+  Hive.registerAdapter(ChatMessageAdapter());
+  Hive.registerAdapter(RoomMetadataAdapter());
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
   runApp(const ProviderScope(child: MaterialApp(home: App())));
 }
 
