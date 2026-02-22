@@ -2,14 +2,14 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:prove_me_wrong/Screens/home_screen.dart';
 import 'package:prove_me_wrong/Screens/rooms_screen.dart';
 import 'package:prove_me_wrong/Screens/sign_up.dart';
 import 'package:prove_me_wrong/core/data/message_adapter.dart';
-import 'package:prove_me_wrong/widgets/footer.dart';
 import 'package:prove_me_wrong/core/data/screens_data.dart';
 import 'package:prove_me_wrong/core/theme/app_theme.dart';
-import 'package:hive_flutter/hive_flutter.dart';
+import 'package:prove_me_wrong/widgets/footer.dart';
 
 import 'firebase_options.dart';
 
@@ -21,7 +21,22 @@ void main() async {
   Hive.registerAdapter(RoomMetadataAdapter());
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  runApp(const ProviderScope(child: MaterialApp(home: App())));
+  runApp(
+    ProviderScope(
+      child: MaterialApp(
+        theme: ThemeData(
+          snackBarTheme: SnackBarThemeData(
+            backgroundColor: AppColors.tertiary,
+            contentTextStyle: TextStyle(
+              color: AppColors.onSecondary,
+              fontSize: 18,
+            ),
+          ),
+        ),
+        home: App(),
+      ),
+    ),
+  );
 }
 
 class App extends ConsumerWidget {
