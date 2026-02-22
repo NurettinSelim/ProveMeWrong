@@ -6,12 +6,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:prove_me_wrong/core/data/hive_functions.dart';
 import 'package:prove_me_wrong/core/data/message_adapter.dart';
 import 'package:prove_me_wrong/core/data/room_data.dart';
 import 'package:prove_me_wrong/core/theme/app_theme.dart';
 import 'package:prove_me_wrong/widgets/chat_bubble.dart';
 import 'package:prove_me_wrong/widgets/rate_card.dart';
-import 'package:prove_me_wrong/core/data/hive_functions.dart';
 
 //rulesda $message .write kısmında: null && root.child('users/' + auth.uid + '/rooms/' + $id).exists() && newData.child('senderId').val() === auth.uid
 
@@ -99,6 +99,34 @@ class _ChatScreenState extends State<ChatScreen> {
         });
       }
     }
+
+    // Anlık olarak odada misafir yok ama kullanıcı chat ekranındayken
+    // Misafir katılabilir bunun için guestID yi dinlememiz lazım
+    if (widget.rooms.guestId == "") {
+      FirebaseDatabase.instance
+          .ref("rooms/$roomId/guestID")
+          .onValue
+          .where((event) => event.snapshot.exists)
+          .first
+          .then((value) {
+            if (!mounted) return;
+            print("${value.snapshot.value} katıldı");
+            setState(() {
+              widget.rooms.guestId = value.snapshot.value as String;
+            });
+          });
+    }
+
+    FirebaseDatabase.instance
+        .ref("rooms/$roomId/isClosed")
+        .onValue
+        .where((event) => event.snapshot.exists)
+        .first
+        .then((value) {
+          if (!mounted) return;
+          isRoomClosed = (value.snapshot.value as bool?) ?? false;
+          setState(() {});
+        });
   }
 
   final TextEditingController messageController = TextEditingController();
@@ -115,7 +143,9 @@ class _ChatScreenState extends State<ChatScreen> {
       ? widget.rooms.guestId
       : widget.rooms.ownerId;
 
-  //  Puan verme işlemi tamamlandıysa TRUE döndürüyor
+  //  Puan verme işlemi tamamlanmadıysa FALSE döndürüyor
+  //  TRUE döndüremez. İşlem tamamlandığında rooms_screen
+  //  Bu widgetı ağactan siliyor.
   Future<bool> giveRating() async {
     final int? rating = await showDialog(
       context: context,
@@ -288,14 +318,45 @@ class _ChatScreenState extends State<ChatScreen> {
                 context: context,
                 builder: (context) => AlertDialog(
                   title: const Text("Are you sure?"),
-                  content: const Text(
-                    "Session will be over and you can rate your opponent.",
+                  content: Text(
+                    widget.rooms.guestId.isNotEmpty
+                        ? "Session will be over and you can rate your opponent."
+                        : "The room will be closed.",
                   ),
                   actions: <Widget>[
                     TextButton(
                       onPressed: () async {
                         Navigator.pop(context); // Are you sure? dialogunu kapat
-                        await giveRating(); //normalde final success = await giveRating() idi ancak kullanılmadığı için SİLDİMMM :)
+                        if (widget.rooms.guestId.isNotEmpty) {
+                          final success = await giveRating();
+                          if (!success) {
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    "Something went wrong when trying to give rating. Please try again.",
+                                  ),
+                                ),
+                              );
+                            }
+                          }
+                        } else {
+                          Map<String, Object?> dbUpdates = {};
+                          dbUpdates["users/$userID/roomCount"] =
+                              ServerValue.increment(-1);
+                          dbUpdates["users/$userID/rooms/$roomId"] = null;
+                          dbUpdates["rooms/$roomId/"] = null;
+                          try {
+                            await FirebaseDatabase.instance.ref().update(
+                              dbUpdates,
+                            );
+                          } catch (e) {
+                            print(e.toString());
+                          }
+                        }
+                        if (context.mounted) {
+                          Navigator.of(context).pop();
+                        }
                       },
 
                       style: ButtonStyle(
@@ -361,7 +422,9 @@ class _ChatScreenState extends State<ChatScreen> {
                         if (messages.isEmpty) {
                           return Center(
                             child: Text(
-                              "Start the Conversation",
+                              widget.rooms.guestId != ''
+                                  ? "Start the Conversation"
+                                  : "Waiting for Someone to Join",
                               style: TextStyle(
                                 color: Colors.black,
                                 fontFamily: "SpaceMono",
@@ -408,7 +471,7 @@ class _ChatScreenState extends State<ChatScreen> {
           children: [
             Expanded(
               child: TextField(
-                enabled: !isRoomClosed,
+                enabled: !isRoomClosed && (widget.rooms.guestId != ''),
                 controller: messageController,
                 decoration: InputDecoration(
                   hintText: "Start the Fight...",
@@ -436,7 +499,7 @@ class _ChatScreenState extends State<ChatScreen> {
             SizedBox(width: 8),
             IconButton(
               icon: Icon(Icons.send, color: AppColors.onPrimary),
-              onPressed: !isRoomClosed
+              onPressed: !isRoomClosed && (widget.rooms.guestId != '')
                   ? () {
                       final text = messageController.text;
                       sendMessage(text);
