@@ -254,9 +254,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                   filled: true,
                                   fillColor: AppColors.tertiary,
                                   contentPadding: EdgeInsets.all(4),
-                                  suffixIconConstraints: BoxConstraints(
-                                    maxHeight: 24,
-                                    maxWidth: 24,
+
+                                  suffixIconConstraints: BoxConstraints.loose(
+                                    Size(24, 24),
                                   ),
                                   enabledBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(20),
@@ -272,25 +272,20 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                       width: 2,
                                     ),
                                   ),
-                                  suffixIcon: Padding(
-                                    padding: EdgeInsets.fromLTRB(0, 2, 8, 2),
-                                    child: IconButton(
-                                      style: ButtonStyle(
-                                        iconAlignment: IconAlignment.end,
-                                      ),
-                                      icon: Icon(
-                                        isVisible
-                                            ? Icons.visibility
-                                            : Icons.visibility_off,
-                                      ),
-                                      onPressed: () {
-                                        setState(() {
-                                          isVisible = !isVisible;
-                                        });
-                                      },
-                                      color: Colors.black,
-                                      iconSize: 16,
+                                  suffixIcon: IconButton(
+                                    icon: Icon(
+                                      isVisible
+                                          ? Icons.visibility
+                                          : Icons.visibility_off,
                                     ),
+                                    onPressed: () {
+                                      setState(() {
+                                        isVisible = !isVisible;
+                                      });
+                                    },
+                                    padding: EdgeInsets.zero,
+                                    iconSize: 16,
+                                    color: Colors.black,
                                   ),
                                 ),
                                 style: TextStyle(
