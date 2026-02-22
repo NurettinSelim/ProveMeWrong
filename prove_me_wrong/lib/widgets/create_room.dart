@@ -18,12 +18,12 @@ class _CreateRoomState extends State<CreateRoom> {
   final titleController = TextEditingController();
 
   //  Returns error or success message
-  Future<String> createRoom() async {
+  Future<(bool success, String message)> createRoom() async {
     if (selectedCategory == null || selectedLanguage == null) {
-      return "Language and Category can't be empty.";
+      return (false, "Language and Category can't be empty.");
     }
     String title = titleController.text.trim();
-    if (title.isEmpty) return "Title can't be empty.";
+    if (title.isEmpty) return (false, "Title can't be empty.");
     final currentUser = FirebaseAuth.instance.currentUser;
     final userDb = FirebaseDatabase.instance.ref("users/${currentUser!.uid}");
 
@@ -44,18 +44,17 @@ class _CreateRoomState extends State<CreateRoom> {
         ownerScore = (scoreSnap.value as num).toInt();
       }
     } catch (e) {
-      return "Something went wrong. Try again later.";
+      return (false, "Something went wrong. Try again later.");
     }
 
     if (roomCountSnap.value as int >= 7) {
-      return "You can only have 7 rooms at the same time.";
+      return (false, "You can only have 7 rooms at the same time.");
     }
 
     try {
       final Map<String, Object> dbUpdates = {};
 
-      final roomsRef = FirebaseDatabase.instance.ref("rooms");
-      final roomKey = roomsRef.push().key!;
+      final roomKey = FirebaseDatabase.instance.ref("rooms").push().key!;
 
       dbUpdates["rooms/$roomKey"] = {
         "ownerID": currentUser.uid,
@@ -74,11 +73,10 @@ class _CreateRoomState extends State<CreateRoom> {
 
       await FirebaseDatabase.instance.ref().update(dbUpdates);
     } catch (e) {
-      print("Error creating room: $e");
-      return "Error: $e";
+      return (false, "Something went wrong. Please try again later.");
     }
 
-    return "Succesfully created the room.";
+    return (true, "Succesfully created the room.");
   }
 
   @override
@@ -288,10 +286,13 @@ class _CreateRoomState extends State<CreateRoom> {
               ),
             ),
             onPressed: () async {
-              final result = await createRoom();
+              final (bool, String) result = await createRoom();
               ScaffoldMessenger.of(
                 context,
-              ).showSnackBar(SnackBar(content: Text(result)));
+              ).showSnackBar(SnackBar(content: Text(result.$2)));
+              if (context.mounted) {
+                Navigator.of(context).pop();
+              }
             },
             child: Text(
               "CREATE ROOM",
