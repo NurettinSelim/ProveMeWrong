@@ -107,37 +107,40 @@ class _RoomsScreenState extends State<RoomsScreen> {
             child: ListView.builder(
               itemCount: rooms.length,
               itemBuilder: (context, index) {
-                return Stack(
-                  key: ValueKey(rooms[index].roomId),
-                  clipBehavior: Clip.none,
-                  children: [
-                    RoomCard(
-                      room: rooms[index],
-                      showPopUp: false,
-                      onEnter: onEnter,
-                    ),
-                    Positioned(
-                      top: -15,
-                      right: -10,
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          Image.asset(
-                            "lib/assets/icons/s_filled_tomato.png",
-                            width: 32,
-                            height: 32,
-                          ),
-                          Text(
-                            "570",
-                            style: TextStyle(
-                              fontFamily: "Azer29LT",
-                              color: AppColors.onPrimary,
-                            ),
-                          ),
-                        ],
+                return Padding(
+                  padding: EdgeInsetsGeometry.all(6),
+                  child: Stack(
+                    key: ValueKey(rooms[index].roomId),
+                    clipBehavior: Clip.none,
+                    children: [
+                      RoomCard(
+                        room: rooms[index],
+                        showPopUp: false,
+                        onEnter: onEnter,
                       ),
-                    ),
-                  ],
+                      Positioned(
+                        top: -15,
+                        right: -10,
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            Image.asset(
+                              "lib/assets/icons/s_filled_tomato.png",
+                              width: 32,
+                              height: 32,
+                            ),
+                            Text(
+                              "570",
+                              style: TextStyle(
+                                fontFamily: "Azer29LT",
+                                color: AppColors.onPrimary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 );
               },
             ),
