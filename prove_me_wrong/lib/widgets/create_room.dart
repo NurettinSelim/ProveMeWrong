@@ -156,10 +156,7 @@ class _CreateRoomState extends State<CreateRoom> {
                             ),
                           ),
                         ),
-                        style: TextStyle(
-                          color: AppColors.onPrimary,
-                          fontSize: 16,
-                        ),
+                        style: TextStyle(color: Colors.black, fontSize: 16),
                       ),
                     ),
                   ],
@@ -179,7 +176,7 @@ class _CreateRoomState extends State<CreateRoom> {
                             value: cat,
                             child: Text(
                               cat.value,
-                              style: TextStyle(color: AppColors.onPrimary),
+                              style: TextStyle(color: Colors.black),
                             ),
                           );
                         }).toList(),
@@ -233,7 +230,7 @@ class _CreateRoomState extends State<CreateRoom> {
                             value: lang,
                             child: Text(
                               lang.value,
-                              style: TextStyle(color: AppColors.onPrimary),
+                              style: TextStyle(color: Colors.black),
                             ),
                           );
                         }).toList(),
