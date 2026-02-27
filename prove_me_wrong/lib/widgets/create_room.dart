@@ -129,7 +129,7 @@ class _CreateRoomState extends State<CreateRoom> {
                   children: [
                     Text(
                       "TITLE:",
-                      style: TextStyle(fontSize: 18, fontFamily: "Space Mono"),
+                      style: TextStyle(fontSize: 18, fontFamily: "SpaceMono"),
                     ),
                     SizedBox(width: 15),
                     Expanded(
@@ -166,7 +166,7 @@ class _CreateRoomState extends State<CreateRoom> {
                   children: [
                     Text(
                       "CATEGORY:",
-                      style: TextStyle(fontSize: 18, fontFamily: "Space Mono"),
+                      style: TextStyle(fontSize: 18, fontFamily: "SpaceMono"),
                     ),
                     SizedBox(width: 15),
                     Expanded(
@@ -220,7 +220,7 @@ class _CreateRoomState extends State<CreateRoom> {
                   children: [
                     Text(
                       "LANGUAGE:",
-                      style: TextStyle(fontSize: 18, fontFamily: "Space Mono"),
+                      style: TextStyle(fontSize: 18, fontFamily: "SpaceMono"),
                     ),
                     SizedBox(width: 15),
                     Expanded(
@@ -294,7 +294,7 @@ class _CreateRoomState extends State<CreateRoom> {
             child: Text(
               "CREATE ROOM",
               style: TextStyle(
-                fontFamily: "Space Mono",
+                fontFamily: "SpaceMono",
                 color: Colors.black,
                 fontSize: 20,
               ),

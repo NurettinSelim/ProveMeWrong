@@ -88,64 +88,125 @@ class _RoomsScreenState extends State<RoomsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(28.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "My Rooms(${rooms.length}/7)",
-            style: TextStyle(
-              fontFamily: "SpaceMono",
-              fontStyle: FontStyle.italic,
-              fontSize: 32,
-              color: Colors.black,
-            ),
-          ),
-          SizedBox(height: 12),
-          Expanded(
-            child: ListView.builder(
-              itemCount: rooms.length,
-              itemBuilder: (context, index) {
-                return Padding(
-                  padding: EdgeInsetsGeometry.all(6),
-                  child: Stack(
-                    key: ValueKey(rooms[index].roomId),
-                    clipBehavior: Clip.none,
-                    children: [
-                      RoomCard(
-                        room: rooms[index],
-                        showPopUp: false,
-                        onEnter: onEnter,
-                      ),
-                      Positioned(
-                        top: -15,
-                        right: -10,
-                        child: Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            Image.asset(
-                              "lib/assets/icons/s_filled_tomato.png",
-                              width: 32,
-                              height: 32,
-                            ),
-                            Text(
-                              "570",
-                              style: TextStyle(
-                                fontFamily: "Azer29LT",
-                                color: AppColors.onPrimary,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+    return Scaffold(
+      appBar: AppBar(backgroundColor: AppColors.onPrimary),
+      drawer: Drawer(
+        backgroundColor: AppColors.primary,
+        child: ListView(
+          children: [
+            DrawerHeader(
+              child: Container(
+                //padding: EdgeInsets.fromLTRB(16, 0, 16, 0),
+                alignment: Alignment.center,
+                //width: double.infinity,
+                height: 15,
+                decoration: BoxDecoration(
+                  shape: BoxShape.rectangle,
+                  color: const Color.fromARGB(225, 237, 227, 215),
+                  borderRadius: BorderRadius.circular(25),
+                  border: Border.all(color: Colors.black, width: 2),
+                ),
+                child: Text(
+                  "Account Info",
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontFamily: "SpaceMono",
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
                   ),
-                );
-              },
+                ),
+              ),
             ),
-          ),
-        ],
+            Container(
+              padding: EdgeInsets.fromLTRB(16, 0, 16, 0),
+              alignment: Alignment.center,
+              //width: double.infinity,
+              //height: 50,
+              decoration: BoxDecoration(
+                shape: BoxShape.rectangle,
+                color: AppColors.onPrimary,
+                borderRadius: BorderRadius.circular(25),
+                border: Border.all(color: Colors.black, width: 2),
+              ),
+              child: Text(currentUser!.email!),
+            ),
+            SizedBox(height: 16),
+            Container(
+              padding: EdgeInsets.fromLTRB(16, 0, 16, 0),
+              alignment: Alignment.center,
+              //width: double.infinity,
+              height: 15,
+              decoration: BoxDecoration(
+                shape: BoxShape.rectangle,
+                color: AppColors.onPrimary,
+                borderRadius: BorderRadius.circular(25),
+                border: Border.all(color: Colors.black, width: 2),
+              ),
+              child: Text("data"),
+            ),
+          ],
+        ),
+      ),
+      backgroundColor: AppColors.onPrimary,
+      body: Padding(
+        padding: const EdgeInsets.fromLTRB(28, 0, 28, 0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "My Rooms(${rooms.length}/7)",
+              style: TextStyle(
+                fontFamily: "SpaceMono",
+                fontStyle: FontStyle.italic,
+                fontSize: 32,
+                color: Colors.black,
+              ),
+            ),
+            SizedBox(height: 12),
+            Expanded(
+              child: ListView.builder(
+                itemCount: rooms.length,
+                itemBuilder: (context, index) {
+                  return Padding(
+                    padding: EdgeInsetsGeometry.all(6),
+                    child: Stack(
+                      key: ValueKey(rooms[index].roomId),
+                      clipBehavior: Clip.none,
+                      children: [
+                        RoomCard(
+                          room: rooms[index],
+                          showPopUp: false,
+                          onEnter: onEnter,
+                        ),
+                        Positioned(
+                          top: -15,
+                          right: -10,
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              Image.asset(
+                                "lib/assets/icons/s_filled_tomato.png",
+                                width: 32,
+                                height: 32,
+                              ),
+                              Text(
+                                "570",
+                                style: TextStyle(
+                                  fontFamily: "Azer29LT",
+                                  color: AppColors.onPrimary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

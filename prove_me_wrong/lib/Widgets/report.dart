@@ -177,7 +177,7 @@ class _ReportWidgetState extends State<ReportWidget> {
             "Reason for report: ",
             style: TextStyle(
               fontSize: 18,
-              fontFamily: "Space Mono",
+              fontFamily: "SpaceMono",
               color: AppColors.onSecondary,
             ),
           ),
@@ -194,7 +194,7 @@ class _ReportWidgetState extends State<ReportWidget> {
                     reason.message,
                     style: TextStyle(
                       fontSize: 18,
-                      fontFamily: "Space Mono",
+                      fontFamily: "SpaceMono",
                       color: Colors.black,
                     ),
                   ),
@@ -247,7 +247,7 @@ class _ReportWidgetState extends State<ReportWidget> {
             child: Text(
               "Report",
               style: TextStyle(
-                fontFamily: "Space Mono",
+                fontFamily: "SpaceMono",
                 color: Colors.black,
                 fontSize: 20,
               ),
