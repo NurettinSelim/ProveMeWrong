@@ -1,5 +1,3 @@
-import 'dart:collection';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +7,13 @@ import 'package:prove_me_wrong/core/data/language_data.dart';
 import 'package:prove_me_wrong/core/data/room_data.dart';
 import 'package:prove_me_wrong/core/theme/app_theme.dart';
 import 'package:prove_me_wrong/widgets/room_card.dart';
+
+class RoomAndNotification {
+  final Room room;
+  int notificationCount;
+
+  RoomAndNotification(this.room, this.notificationCount);
+}
 
 class RoomsScreen extends StatefulWidget {
   const RoomsScreen({super.key});
@@ -24,65 +29,80 @@ class _RoomsScreenState extends State<RoomsScreen> {
     "users/${currentUser!.uid}",
   );
 
-  List<Room> rooms = [];
+  final roomAndNotifications = <RoomAndNotification>[];
 
-  void onEnter(String roomID) {
+  void onEnter(Room room) {
     Navigator.push(
       context,
-      MaterialPageRoute<void>(
-        builder: (context) => ChatScreen(
-          rooms: rooms.firstWhere((element) {
-            return element.roomId == roomID;
-          }),
-        ),
-      ),
+      MaterialPageRoute<void>(builder: (context) => ChatScreen(rooms: room)),
     );
   }
 
   @override
   void initState() {
     super.initState();
-    final roomDb = FirebaseDatabase.instance.ref("rooms");
+
+    //
+    //  Direk rooms u okumak mesajlarıda gereksiz yere okuyor. Onun için
+    //  ihtiyacımız olan kısımları tek tek okuyoruz
+    //
     userDb.child("rooms").onChildAdded.listen((event) async {
-      final DataSnapshot roomSnap;
-      try {
-        roomSnap = await roomDb.child("${event.snapshot.value}").get();
-      } catch (e) {
-        return;
-      }
-      final roomMap = roomSnap.value as LinkedHashMap;
-      final category = Categories.fromString(roomMap["category"]);
-      final language = Languages.fromString(roomMap["language"]);
-      final ownerID = roomMap["ownerID"];
-      final guestID = roomMap["guestID"];
-      //  Bozuk veri. Sonra buraya oda silme eklenebilir
-      if (category == null || language == null) {
-        return;
-      }
-      rooms.add(
+      final baseRef = FirebaseDatabase.instance.ref(
+        "rooms/${event.snapshot.key}",
+      );
+
+      final category = Categories.fromString(
+        (await baseRef.child("category").get()).value as String,
+      );
+      final language = Languages.fromString(
+        (await baseRef.child("language").get()).value as String,
+      );
+      final ownerID = (await baseRef.child("ownerID").get()).value as String;
+      final guestID = (await baseRef.child("guestID").get()).value as String?;
+      final title = (await baseRef.child("title").get()).value as String;
+      final ownerScore = (await baseRef.child("ownerScore").get()).value as int;
+
+      final notificationRef = currentUser!.uid == ownerID
+          ? baseRef.child("ownerNotificationCount")
+          : baseRef.child("guestNotificationCount");
+
+      int? notificationCount = (await notificationRef.get()).value as int?;
+      final roomAndNotification = RoomAndNotification(
         Room(
-          roomId: roomSnap.key as String,
+          roomId: event.snapshot.key!,
           ownerId: ownerID,
           guestId: guestID ?? "",
-          ownerScore: roomMap["ownerScore"],
-          title: roomMap["title"],
-          category: category,
-          language: language,
+          ownerScore: ownerScore,
+          title: title,
+          category: category!,
+          language: language!,
         ),
+        notificationCount ?? 0,
       );
+
+      roomAndNotifications.add(roomAndNotification);
       setState(() {});
+      notificationRef.onValue
+          .where((event) {
+            return event.snapshot.exists &&
+                roomAndNotification.notificationCount !=
+                    (event.snapshot.value as int);
+          })
+          .listen((event) {
+            roomAndNotification.notificationCount = event.snapshot.value as int;
+            roomAndNotifications.sort((a, b) {
+              return b.notificationCount.compareTo(a.notificationCount);
+            });
+            setState(() {});
+          });
     });
 
     userDb.child("rooms").onChildRemoved.listen((event) {
       String removedId = event.snapshot.value as String;
-      for (int i = 0; i < rooms.length; i++) {
-        if (rooms[i].roomId == removedId) {
-          setState(() {
-            rooms.removeAt(i);
-          });
-          return;
-        }
-      }
+      roomAndNotifications.removeWhere((element) {
+        return element.room.roomId == removedId;
+      });
+      setState(() {});
     });
   }
 
@@ -154,7 +174,7 @@ class _RoomsScreenState extends State<RoomsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "My Rooms(${rooms.length}/7)",
+              "My Rooms(${roomAndNotifications.length}/7)",
               style: TextStyle(
                 fontFamily: "SpaceMono",
                 fontStyle: FontStyle.italic,
@@ -165,16 +185,16 @@ class _RoomsScreenState extends State<RoomsScreen> {
             SizedBox(height: 12),
             Expanded(
               child: ListView.builder(
-                itemCount: rooms.length,
+                itemCount: roomAndNotifications.length,
                 itemBuilder: (context, index) {
                   return Padding(
+                    key: ValueKey(roomAndNotifications[index].room.roomId),
                     padding: EdgeInsetsGeometry.all(6),
                     child: Stack(
-                      key: ValueKey(rooms[index].roomId),
                       clipBehavior: Clip.none,
                       children: [
                         RoomCard(
-                          room: rooms[index],
+                          room: roomAndNotifications[index].room,
                           showPopUp: false,
                           onEnter: onEnter,
                         ),
