@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:prove_me_wrong/Screens/forget_password_screen.dart';
 import 'package:prove_me_wrong/core/theme/app_theme.dart';
 
 class SignUpScreen extends StatefulWidget {
@@ -101,11 +102,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SizedBox(height: 80),
+            SizedBox(height: MediaQuery.of(context).size.height * 0.05),
             Transform.rotate(
               angle: -0.0523,
               child: Container(
-                margin: EdgeInsets.only(bottom: 100),
+                margin: EdgeInsets.only(bottom: 70),
                 padding: EdgeInsets.fromLTRB(0, 16, 0, 16),
                 alignment: Alignment.center,
                 width: 225,
@@ -165,7 +166,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               children: [
                 Container(
                   width: 350,
-                  height: 200,
+                  height: 220,
                   decoration: BoxDecoration(
                     color: AppColors.onPrimary,
                     borderRadius: BorderRadius.circular(8),
@@ -357,6 +358,21 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               ),
                             ),
                           ],
+                        ),
+                        SizedBox(height: 6),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ForgetPasswordScreen(),
+                              ),
+                            );
+                          },
+                          child: Text(
+                            "Forget your password?",
+                            style: TextStyle(color: AppColors.primary),
+                          ),
                         ),
                       ],
                     ),

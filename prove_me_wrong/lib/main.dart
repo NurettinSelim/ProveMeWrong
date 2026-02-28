@@ -47,9 +47,13 @@ class App extends ConsumerWidget {
     final currentScreen = ref.watch(screenProvider);
 
     return StreamBuilder(
-      stream: FirebaseAuth.instance.authStateChanges(),
+      stream: FirebaseAuth.instance.userChanges(),
       builder: (context, asyncSnapshot) {
         if (asyncSnapshot.hasData) {
+          if (asyncSnapshot.data!.emailVerified == false) {
+            //  Email onaylamayı aktif hale getiriyor
+            //return VerifyMailScreen();
+          }
           return Scaffold(
             backgroundColor: AppColors.onPrimary,
             body: Stack(
