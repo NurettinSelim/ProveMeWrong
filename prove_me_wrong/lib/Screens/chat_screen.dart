@@ -29,6 +29,7 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   bool isRoomClosed = false;
+
   final currentUser = FirebaseAuth.instance.currentUser;
   late final String roomId = widget.rooms.roomId;
 
@@ -40,6 +41,8 @@ class _ChatScreenState extends State<ChatScreen> {
       .instance
       .currentUser!
       .uid; //ownerID yaparsam sadece room sahibi mesaj atabilir, o yüzden direkt uygulamayı açan kişinin idsini alıyorum
+  late bool isOwner = userID == widget.rooms.ownerId ? true : false;
+
   Box<ChatMessage>? _chatMessagesBox;
   bool _isInitialized = false;
   StreamSubscription? firebaseSub;
@@ -48,6 +51,13 @@ class _ChatScreenState extends State<ChatScreen> {
   void initState() {
     super.initState();
     _initRoom();
+    final notifyName = isOwner
+        ? "ownerNotificationCount"
+        : "guestNotificationCount";
+    FirebaseDatabase.instance
+        .ref("rooms/$roomId/$notifyName")
+        .onDisconnect()
+        .set(0);
   }
 
   Future<void> _initRoom() async {
@@ -135,6 +145,10 @@ class _ChatScreenState extends State<ChatScreen> {
   void dispose() {
     messageController.dispose();
     firebaseSub?.cancel();
+    final notifyName = isOwner
+        ? "ownerNotificationCount"
+        : "guestNotificationCount";
+    FirebaseDatabase.instance.ref("rooms/$roomId/$notifyName").set(0);
     closeRoom(roomId);
     super.dispose();
   }
@@ -236,6 +250,12 @@ class _ChatScreenState extends State<ChatScreen> {
       "senderId": userID,
     });
 
+    final notifyName = isOwner
+        ? "guestNotificationCount"
+        : "ownerNotificationCount";
+    FirebaseDatabase.instance
+        .ref("rooms/$roomId/$notifyName")
+        .set(ServerValue.increment(1));
     final roomBox = await getRoomData();
     final roomData = roomBox.get(roomId);
 
