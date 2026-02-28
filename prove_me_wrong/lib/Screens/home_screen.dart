@@ -30,10 +30,8 @@ class _HomeScreenState extends State<HomeScreen> {
   final roomsDb = FirebaseDatabase.instance.ref("rooms");
   final currentUser = FirebaseAuth.instance.currentUser!;
 
-  void onEnter(String roomId) async {
-    final selectedRoom = rooms.singleWhere(
-      (element) => element.roomId == roomId,
-    );
+  void onEnter(Room selectedRoom) async {
+    final roomId = selectedRoom.roomId;
 
     final result = await roomsDb.child("$roomId/guestID").runTransaction((
       value,
