@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:prove_me_wrong/widgets/report.dart';
 import 'package:prove_me_wrong/core/data/room_data.dart';
 import 'package:prove_me_wrong/core/theme/app_theme.dart';
+import 'package:prove_me_wrong/widgets/report.dart';
 
 class RoomCard extends StatelessWidget {
   const RoomCard({
@@ -13,7 +13,7 @@ class RoomCard extends StatelessWidget {
 
   final bool showPopUp;
   final Room room;
-  final void Function(String roomId)? onEnter;
+  final void Function(Room room)? onEnter;
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +69,7 @@ class RoomCard extends StatelessWidget {
               ),
               TextButton(
                 onPressed: () {
-                  onEnter?.call(room.roomId);
+                  onEnter?.call(room);
                 },
                 child: Text(
                   "Enter",
