@@ -111,58 +111,175 @@ class _RoomsScreenState extends State<RoomsScreen> {
     return Scaffold(
       appBar: AppBar(backgroundColor: AppColors.onPrimary),
       drawer: Drawer(
-        backgroundColor: AppColors.primary,
+        backgroundColor: AppColors.onPrimary,
         child: ListView(
+          padding: EdgeInsets.all(8),
           children: [
             DrawerHeader(
               child: Container(
                 //padding: EdgeInsets.fromLTRB(16, 0, 16, 0),
-                alignment: Alignment.center,
+                alignment: Alignment.bottomLeft,
                 //width: double.infinity,
                 height: 15,
-                decoration: BoxDecoration(
-                  shape: BoxShape.rectangle,
-                  color: const Color.fromARGB(225, 237, 227, 215),
-                  borderRadius: BorderRadius.circular(25),
-                  border: Border.all(color: Colors.black, width: 2),
-                ),
-                child: Text(
-                  "Account Info",
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontFamily: "SpaceMono",
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
+                //decoration: BoxDecoration(shape: BoxShape.rectangle),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "ACCOUNT",
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontFamily: "SpaceMono",
+                        fontSize: 24,
+                        //fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      "INFO",
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontFamily: "SpaceMono",
+                        fontSize: 24,
+                        //fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
+            SizedBox(height: 124),
             Container(
-              padding: EdgeInsets.fromLTRB(16, 0, 16, 0),
+              padding: EdgeInsets.all(12),
               alignment: Alignment.center,
               //width: double.infinity,
               //height: 50,
               decoration: BoxDecoration(
                 shape: BoxShape.rectangle,
-                color: AppColors.onPrimary,
-                borderRadius: BorderRadius.circular(25),
+                color: const Color.fromARGB(225, 216, 112, 112),
+                borderRadius: BorderRadius.circular(16),
                 border: Border.all(color: Colors.black, width: 2),
               ),
-              child: Text(currentUser!.email!),
+              child: Text(
+                currentUser!.email!,
+                style: TextStyle(
+                  fontFamily: "Azer29LT",
+                  fontSize: 18,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
             ),
             SizedBox(height: 16),
             Container(
-              padding: EdgeInsets.fromLTRB(16, 0, 16, 0),
+              padding: EdgeInsets.fromLTRB(16, 16, 16, 16),
               alignment: Alignment.center,
               //width: double.infinity,
-              height: 15,
+              //height: 15,
               decoration: BoxDecoration(
                 shape: BoxShape.rectangle,
-                color: AppColors.onPrimary,
+                color: const Color.fromARGB(225, 216, 112, 112),
                 borderRadius: BorderRadius.circular(25),
                 border: Border.all(color: Colors.black, width: 2),
               ),
-              child: Text("data"),
+              child: Row(
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Rating: ",
+                        style: TextStyle(
+                          fontFamily: "Azer29LT",
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      Text(
+                        "Total Score: ",
+                        style: TextStyle(
+                          fontFamily: "Azer29LT",
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(width: 16),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Rating: ",
+                        style: TextStyle(
+                          fontFamily: "Azer29LT",
+                          fontSize: 18,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      Text(
+                        "Total Score: ",
+                        style: TextStyle(
+                          fontFamily: "Azer29LT",
+                          fontSize: 18,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 124),
+            Column(
+              spacing: 10,
+              children: [
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {},
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.tertiary,
+                      padding: const EdgeInsets.all(16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        side: const BorderSide(color: Colors.black, width: 2),
+                      ),
+                    ),
+                    child: Text(
+                      "RESET YOUR PASSWORD",
+                      style: const TextStyle(
+                        fontFamily: "Azer29LT",
+                        fontSize: 18,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {},
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      padding: const EdgeInsets.all(16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        side: const BorderSide(color: Colors.black, width: 2),
+                      ),
+                    ),
+                    child: Text(
+                      "SIGN OUT",
+                      style: const TextStyle(
+                        fontFamily: "Azer29LT",
+                        fontSize: 18,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.onPrimary,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
