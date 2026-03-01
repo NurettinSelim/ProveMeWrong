@@ -24,6 +24,7 @@ class RoomsScreen extends StatefulWidget {
 
 class _RoomsScreenState extends State<RoomsScreen> {
   final currentUser = FirebaseAuth.instance.currentUser;
+  int? finNotification;
 
   late final userDb = FirebaseDatabase.instance.ref(
     "users/${currentUser!.uid}",
@@ -81,7 +82,9 @@ class _RoomsScreenState extends State<RoomsScreen> {
       );
 
       roomAndNotifications.add(roomAndNotification);
-      setState(() {});
+      setState(() {
+        finNotification = notificationCount;
+      });
       notificationRef.onValue
           .where((event) {
             return event.snapshot.exists &&
@@ -113,7 +116,7 @@ class _RoomsScreenState extends State<RoomsScreen> {
       drawer: Drawer(
         backgroundColor: AppColors.onPrimary,
         child: ListView(
-          padding: EdgeInsets.all(8),
+          padding: EdgeInsets.all(16),
           children: [
             DrawerHeader(
               child: Container(
@@ -208,21 +211,52 @@ class _RoomsScreenState extends State<RoomsScreen> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        "Rating: ",
-                        style: TextStyle(
-                          fontFamily: "Azer29LT",
-                          fontSize: 18,
-                          fontWeight: FontWeight.w500,
-                        ),
+                      StreamBuilder<DatabaseEvent>(
+                        stream: FirebaseDatabase.instance
+                            .ref("users/${currentUser!.uid}/rating/total")
+                            .onValue,
+                        builder: (context, snapshot) {
+                          if (!snapshot.hasData) {
+                            return CircularProgressIndicator();
+                          }
+
+                          final data = snapshot.data!.snapshot.value;
+
+                          if (data == null) return SizedBox.shrink();
+
+                          return Text(
+                            data.toString(),
+                            style: TextStyle(
+                              fontFamily: "Azer29LT",
+                              fontSize: 18,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          );
+                        },
                       ),
-                      Text(
-                        "Total Score: ",
-                        style: TextStyle(
-                          fontFamily: "Azer29LT",
-                          fontSize: 18,
-                          fontWeight: FontWeight.w500,
-                        ),
+
+                      StreamBuilder<DatabaseEvent>(
+                        stream: FirebaseDatabase.instance
+                            .ref("users/${currentUser!.uid}/rating/total")
+                            .onValue,
+                        builder: (context, snapshot) {
+                          if (!snapshot.hasData) {
+                            return CircularProgressIndicator();
+                          }
+
+                          final data = snapshot.data!.snapshot.value;
+
+                          if (data == null) return SizedBox.shrink();
+
+                          return Text(
+                            data.toString(),
+                            style: TextStyle(
+                              fontFamily: "Azer29LT",
+                              fontSize: 18,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          );
+                        },
                       ),
                     ],
                   ),
@@ -234,9 +268,22 @@ class _RoomsScreenState extends State<RoomsScreen> {
               spacing: 10,
               children: [
                 SizedBox(
-                  width: double.infinity,
+                  //width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () async {
+                      String snackBarMessage =
+                          "We sent a link to your E-mail to reset your password.";
+                      try {
+                        await FirebaseAuth.instance.sendPasswordResetEmail(
+                          email: currentUser!.email!,
+                        );
+                      } catch (e) {
+                        snackBarMessage = "Please enter valid e-mail.";
+                      }
+                      ScaffoldMessenger.of(
+                        context,
+                      ).showSnackBar(SnackBar(content: Text(snackBarMessage)));
+                    }, //TODO: Sonrasında signupa mı dönmeli yoksa oturum açık olarak kalmalı mı?
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.tertiary,
                       padding: const EdgeInsets.all(16),
@@ -259,7 +306,43 @@ class _RoomsScreenState extends State<RoomsScreen> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () => showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        backgroundColor: AppColors.onPrimary,
+                        title: const Text("Are you sure?"),
+                        content: Text(
+                          "You will be redirected to the login page.",
+                        ),
+                        actions: <Widget>[
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            style: ButtonStyle(
+                              foregroundColor: WidgetStatePropertyAll<Color>(
+                                AppColors.primary,
+                              ),
+                            ),
+                            child: const Text("Cancel"),
+                          ),
+                          TextButton(
+                            onPressed: () async {
+                              Navigator.pop(
+                                context,
+                              ); // Are you sure? dialogunu kapat
+                            },
+                            style: ButtonStyle(
+                              foregroundColor: WidgetStatePropertyAll<Color>(
+                                AppColors.onPrimary,
+                              ),
+                              backgroundColor: WidgetStatePropertyAll(
+                                AppColors.primary,
+                              ),
+                            ),
+                            child: Text("Sure"),
+                          ),
+                        ],
+                      ),
+                    ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
                       padding: const EdgeInsets.all(16),
@@ -318,22 +401,25 @@ class _RoomsScreenState extends State<RoomsScreen> {
                         Positioned(
                           top: -15,
                           right: -10,
-                          child: Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              Image.asset(
-                                "lib/assets/icons/s_filled_tomato.png",
-                                width: 32,
-                                height: 32,
-                              ),
-                              Text(
-                                "570",
-                                style: TextStyle(
-                                  fontFamily: "Azer29LT",
-                                  color: AppColors.onPrimary,
+                          child: Visibility(
+                            visible:
+                                finNotification != null || finNotification! > 0,
+                            child: Row(
+                              children: [
+                                Image.asset(
+                                  "lib/assets/icons/s_filled_tomato.png",
+                                  width: 32,
+                                  height: 32,
                                 ),
-                              ),
-                            ],
+                                Text(
+                                  finNotification.toString(),
+                                  style: TextStyle(
+                                    fontFamily: "Azer29LT",
+                                    color: AppColors.onPrimary,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ],
