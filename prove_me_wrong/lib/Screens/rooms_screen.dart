@@ -7,6 +7,7 @@ import 'package:prove_me_wrong/core/data/language_data.dart';
 import 'package:prove_me_wrong/core/data/room_data.dart';
 import 'package:prove_me_wrong/core/theme/app_theme.dart';
 import 'package:prove_me_wrong/widgets/room_card.dart';
+import 'package:prove_me_wrong/Screens/sign_up.dart';
 
 class RoomAndNotification {
   final Room room;
@@ -24,7 +25,6 @@ class RoomsScreen extends StatefulWidget {
 
 class _RoomsScreenState extends State<RoomsScreen> {
   final currentUser = FirebaseAuth.instance.currentUser;
-  int? finNotification;
 
   late final userDb = FirebaseDatabase.instance.ref(
     "users/${currentUser!.uid}",
@@ -82,9 +82,7 @@ class _RoomsScreenState extends State<RoomsScreen> {
       );
 
       roomAndNotifications.add(roomAndNotification);
-      setState(() {
-        finNotification = notificationCount;
-      });
+      setState(() {});
       notificationRef.onValue
           .where((event) {
             return event.snapshot.exists &&
@@ -326,9 +324,16 @@ class _RoomsScreenState extends State<RoomsScreen> {
                           ),
                           TextButton(
                             onPressed: () async {
-                              Navigator.pop(
-                                context,
-                              ); // Are you sure? dialogunu kapat
+                              Navigator.pop(context); // Dialog kapat
+
+                              await FirebaseAuth.instance.signOut();
+
+                              Navigator.of(context).pushAndRemoveUntil(
+                                MaterialPageRoute(
+                                  builder: (context) => SignUpScreen(),
+                                ),
+                                (route) => false,
+                              );
                             },
                             style: ButtonStyle(
                               foregroundColor: WidgetStatePropertyAll<Color>(
@@ -403,19 +408,24 @@ class _RoomsScreenState extends State<RoomsScreen> {
                           right: -10,
                           child: Visibility(
                             visible:
-                                finNotification != null || finNotification! > 0,
-                            child: Row(
+                                roomAndNotifications[index].notificationCount >
+                                0,
+                            child: Stack(
+                              alignment: Alignment.center,
                               children: [
                                 Image.asset(
                                   "lib/assets/icons/s_filled_tomato.png",
                                   width: 32,
                                   height: 32,
                                 ),
+
                                 Text(
-                                  finNotification.toString(),
+                                  roomAndNotifications[index].notificationCount
+                                      .toString(),
                                   style: TextStyle(
-                                    fontFamily: "Azer29LT",
-                                    color: AppColors.onPrimary,
+                                    fontFamily: "SpaceMono",
+                                    color: AppColors.onSecondary,
+                                    fontWeight: FontWeight.bold,
                                   ),
                                 ),
                               ],
