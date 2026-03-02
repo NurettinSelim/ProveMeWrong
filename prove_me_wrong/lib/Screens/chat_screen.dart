@@ -477,8 +477,26 @@ class _ChatScreenState extends State<ChatScreen> {
                     ),
             ),
             isRoomClosed
-                ? Text(
-                    "Room is closed. You can rate the other user by leaving the room.",
+                ? Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Container(
+                      padding: EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.rectangle,
+                        color: AppColors.tertiary,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: Colors.black, width: 2),
+                      ),
+                      child: Text(
+                        "\b Warning: \b Room is closed by the other user. You can rate them by leaving the room.",
+                        style: TextStyle(
+                          fontFamily: "Azer29LT",
+                          fontSize: 18,
+                          fontStyle: FontStyle.italic,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
                   )
                 : SizedBox.shrink(),
           ],
