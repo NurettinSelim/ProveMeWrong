@@ -171,7 +171,7 @@ class _HomeScreenState extends State<HomeScreen> {
       controller: scrollController,
       child: Center(
         child: Padding(
-          padding: EdgeInsetsGeometry.fromLTRB(12, 24, 12, 0),
+          padding: EdgeInsetsGeometry.fromLTRB(16, 32, 16, 0),
           child: Column(
             children: [
               Text(
@@ -211,7 +211,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     SizedBox(height: 12),
                     SizedBox(
-                      height: 80,
+                      height: 84,
                       child: CategoryGrid(categoryList: categoryList),
                     ),
                   ],
