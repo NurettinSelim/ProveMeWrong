@@ -176,8 +176,12 @@ class _ChatScreenState extends State<ChatScreen> {
     final ratingTransaction = await FirebaseDatabase.instance
         .ref("users/$otherUserId/rating")
         .runTransaction((mutableData) {
-          print(mutableData.runtimeType);
-          var data = mutableData as LinkedHashMap;
+          LinkedHashMap data;
+          if (mutableData == null) {
+            data = {"total": 0, "count": 0, "score": 0} as LinkedHashMap;
+          } else {
+            data = mutableData as LinkedHashMap;
+          }
 
           int totalS = (data['total'] as int) + rating;
 
