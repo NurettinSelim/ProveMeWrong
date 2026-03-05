@@ -91,6 +91,7 @@ class _ChatScreenState extends State<ChatScreen> {
           .listen((_) {
             // Yeni mesaj geldiğinde ValueListenableBuilder otomatik güncellenecek
           });
+      _subscriptions.add(firebaseSub!);
       print('🟢 [_initRoom] Firebase listener started');
 
       if (mounted) {
@@ -114,30 +115,34 @@ class _ChatScreenState extends State<ChatScreen> {
     // Anlık olarak odada misafir yok ama kullanıcı chat ekranındayken
     // Misafir katılabilir bunun için guestID yi dinlememiz lazım
     if (widget.rooms.guestId == "") {
-      FirebaseDatabase.instance
+      final guestIdSubscription = FirebaseDatabase.instance
           .ref("rooms/$roomId/guestID")
           .onValue
           .where((event) => event.snapshot.exists)
           .first
-          .then((value) {
+          .asStream()
+          .listen((value) {
             if (!mounted) return;
             print("${value.snapshot.value} katıldı");
             setState(() {
               widget.rooms.guestId = value.snapshot.value as String;
             });
           });
+      _subscriptions.add(guestIdSubscription);
     }
 
-    FirebaseDatabase.instance
+    final isClosedSubscription = FirebaseDatabase.instance
         .ref("rooms/$roomId/isClosed")
         .onValue
         .where((event) => event.snapshot.exists)
         .first
-        .then((value) {
+        .asStream()
+        .listen((value) {
           if (!mounted) return;
           isRoomClosed = (value.snapshot.value as bool?) ?? false;
           setState(() {});
         });
+    _subscriptions.add(isClosedSubscription);
   }
 
   final TextEditingController messageController = TextEditingController();
@@ -145,7 +150,10 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void dispose() {
     messageController.dispose();
-    firebaseSub?.cancel();
+
+    }
+    _subscriptions.clear();
+
     final notifyName = isOwner
         ? "ownerNotificationCount"
         : "guestNotificationCount";
