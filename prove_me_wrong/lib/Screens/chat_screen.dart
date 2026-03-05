@@ -46,6 +46,8 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Box<ChatMessage>? _chatMessagesBox;
   bool _isInitialized = false;
+
+  final List<StreamSubscription> _subscriptions = [];
   StreamSubscription? firebaseSub;
 
   @override
@@ -151,6 +153,8 @@ class _ChatScreenState extends State<ChatScreen> {
   void dispose() {
     messageController.dispose();
 
+    for (var subscription in _subscriptions) {
+      subscription.cancel();
     }
     _subscriptions.clear();
 
