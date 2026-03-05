@@ -12,6 +12,7 @@ import 'package:prove_me_wrong/core/data/room_data.dart';
 import 'package:prove_me_wrong/core/theme/app_theme.dart';
 import 'package:prove_me_wrong/widgets/chat_bubble.dart';
 import 'package:prove_me_wrong/widgets/rate_card.dart';
+import 'package:prove_me_wrong/Screens/rooms_screen.dart';
 
 //rulesda $message .write kısmında: null && root.child('users/' + auth.uid + '/rooms/' + $id).exists() && newData.child('senderId').val() === auth.uid
 
@@ -45,6 +46,8 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Box<ChatMessage>? _chatMessagesBox;
   bool _isInitialized = false;
+
+  final List<StreamSubscription> _subscriptions = [];
   StreamSubscription? firebaseSub;
 
   @override
@@ -90,6 +93,7 @@ class _ChatScreenState extends State<ChatScreen> {
           .listen((_) {
             // Yeni mesaj geldiğinde ValueListenableBuilder otomatik güncellenecek
           });
+      _subscriptions.add(firebaseSub!);
       print('🟢 [_initRoom] Firebase listener started');
 
       if (mounted) {
@@ -113,30 +117,34 @@ class _ChatScreenState extends State<ChatScreen> {
     // Anlık olarak odada misafir yok ama kullanıcı chat ekranındayken
     // Misafir katılabilir bunun için guestID yi dinlememiz lazım
     if (widget.rooms.guestId == "") {
-      FirebaseDatabase.instance
+      final guestIdSubscription = FirebaseDatabase.instance
           .ref("rooms/$roomId/guestID")
           .onValue
           .where((event) => event.snapshot.exists)
           .first
-          .then((value) {
+          .asStream()
+          .listen((value) {
             if (!mounted) return;
             print("${value.snapshot.value} katıldı");
             setState(() {
               widget.rooms.guestId = value.snapshot.value as String;
             });
           });
+      _subscriptions.add(guestIdSubscription);
     }
 
-    FirebaseDatabase.instance
+    final isClosedSubscription = FirebaseDatabase.instance
         .ref("rooms/$roomId/isClosed")
         .onValue
         .where((event) => event.snapshot.exists)
         .first
-        .then((value) {
+        .asStream()
+        .listen((value) {
           if (!mounted) return;
           isRoomClosed = (value.snapshot.value as bool?) ?? false;
           setState(() {});
         });
+    _subscriptions.add(isClosedSubscription);
   }
 
   final TextEditingController messageController = TextEditingController();
@@ -144,7 +152,12 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void dispose() {
     messageController.dispose();
-    firebaseSub?.cancel();
+
+    for (var subscription in _subscriptions) {
+      subscription.cancel();
+    }
+    _subscriptions.clear();
+
     final notifyName = isOwner
         ? "ownerNotificationCount"
         : "guestNotificationCount";
@@ -221,13 +234,9 @@ class _ChatScreenState extends State<ChatScreen> {
     return true;
   }
 
-  // ✅ FIX #7: Removed duplicate getRoom(), getRoomData(), syncNewData()
-
   Future<void> sendMessage(String text) async {
-    if (text.trim().isEmpty) return; // ✅ Guard against empty messages
+    if (text.trim().isEmpty) return;
 
-    // ✅ FIX #8: Use local timestamp for Hive — `ServerValue.timestamp` is a Map placeholder,
-    // NOT an int. Casting it to int crashes at runtime.
     final localTimestamp = DateTime.now().millisecondsSinceEpoch;
 
     final messageRef = FirebaseDatabase.instance
@@ -243,7 +252,6 @@ class _ChatScreenState extends State<ChatScreen> {
       timestamp: localTimestamp,
     );
 
-    // ✅ FIX #9: Use message ID as key, NOT roomId.
     // Before: room2Save.put(roomId, message2Save) — overwrote the same key every time!
     await room2Save.put(messageRef.key!, message2Save);
 
@@ -272,13 +280,10 @@ class _ChatScreenState extends State<ChatScreen> {
     messageController.clear();
   }
 
-  // ✅ FIX #10: Field name consistency — was `timestamp` (lowercase), but Firebase uses `timeStamp`
   Stream<ChatMessage> _listenToNewMessages(String roomId, int lastTimestamp) {
     return FirebaseDatabase.instance
         .ref('rooms/$roomId/messages')
-        .orderByChild(
-          'timeStamp',
-        ) // ✅ FIX: was 'timestamp' — doesn't match Firebase field
+        .orderByChild('timeStamp')
         .startAt(lastTimestamp + 1)
         .onChildAdded
         .asyncMap((event) async {
@@ -288,12 +293,10 @@ class _ChatScreenState extends State<ChatScreen> {
             roomId: roomId,
             senderId: data['senderId'],
             message: data['message'],
-            timestamp:
-                data['timeStamp'], // ✅ FIX: was 'timestamp' — returned null!
+            timestamp: data['timeStamp'],
           );
           final roomBox = await getRoom(roomId);
 
-          // ✅ Only save if not already present (own messages are saved in sendMessage)
           if (!roomBox.containsKey(event.snapshot.key)) {
             await roomBox.put(message.id, message);
             final metadataBox = await getRoomData();
@@ -434,7 +437,6 @@ class _ChatScreenState extends State<ChatScreen> {
         child: Column(
           children: [
             Expanded(
-              // ✅ FIX #11: Show loading indicator while async init completes
               child: !_isInitialized
                   ? Center(child: CircularProgressIndicator())
                   : ValueListenableBuilder(
@@ -487,7 +489,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       padding: EdgeInsets.all(16),
                       decoration: BoxDecoration(
                         shape: BoxShape.rectangle,
-                        color: AppColors.tertiary,
+                        //color: AppColors.tertiary,
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(color: Colors.black, width: 2),
                       ),

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +9,7 @@ import 'package:prove_me_wrong/core/data/room_data.dart';
 import 'package:prove_me_wrong/core/theme/app_theme.dart';
 import 'package:prove_me_wrong/widgets/room_card.dart';
 import 'package:prove_me_wrong/Screens/sign_up.dart';
+import 'package:prove_me_wrong/Screens/home_screen.dart';
 
 class RoomAndNotification {
   final Room room;
@@ -32,6 +34,8 @@ class _RoomsScreenState extends State<RoomsScreen> {
 
   final roomAndNotifications = <RoomAndNotification>[];
 
+  final List<StreamSubscription> _subscriptions = [];
+
   void onEnter(Room room) {
     Navigator.push(
       context,
@@ -47,7 +51,9 @@ class _RoomsScreenState extends State<RoomsScreen> {
     //  Direk rooms u okumak mesajlarıda gereksiz yere okuyor. Onun için
     //  ihtiyacımız olan kısımları tek tek okuyoruz
     //
-    userDb.child("rooms").onChildAdded.listen((event) async {
+    final childAddedSubscription = userDb.child("rooms").onChildAdded.listen((
+      event,
+    ) async {
       final baseRef = FirebaseDatabase.instance.ref(
         "rooms/${event.snapshot.key}",
       );
@@ -83,7 +89,8 @@ class _RoomsScreenState extends State<RoomsScreen> {
 
       roomAndNotifications.add(roomAndNotification);
       setState(() {});
-      notificationRef.onValue
+
+      final notificationSubscription = notificationRef.onValue
           .where((event) {
             return event.snapshot.exists &&
                 roomAndNotification.notificationCount !=
@@ -96,15 +103,35 @@ class _RoomsScreenState extends State<RoomsScreen> {
             });
             setState(() {});
           });
+      _subscriptions.add(notificationSubscription);
     });
+    _subscriptions.add(childAddedSubscription);
 
-    userDb.child("rooms").onChildRemoved.listen((event) {
-      String removedId = event.snapshot.value as String;
-      roomAndNotifications.removeWhere((element) {
-        return element.room.roomId == removedId;
-      });
-      setState(() {});
-    });
+    final childRemovedSubscription = userDb
+        .child("rooms")
+        .onChildRemoved
+        .listen((event) {
+          String removedId = event.snapshot.value as String;
+          roomAndNotifications.removeWhere((element) {
+            return element.room.roomId == removedId;
+          });
+          setState(() {});
+        });
+    _subscriptions.add(childRemovedSubscription);
+  }
+
+  // cancel all subscriptions
+  Future<void> _cancelAllSubscriptions() async {
+    for (var subscription in _subscriptions) {
+      await subscription.cancel();
+    }
+    _subscriptions.clear();
+  }
+
+  @override
+  void dispose() {
+    _cancelAllSubscriptions();
+    super.dispose();
   }
 
   @override
@@ -326,14 +353,10 @@ class _RoomsScreenState extends State<RoomsScreen> {
                             onPressed: () async {
                               Navigator.pop(context); // Dialog kapat
 
-                              await FirebaseAuth.instance.signOut();
+                              // Cancel all subscriptions before signing out
+                              await _cancelAllSubscriptions();
 
-                              Navigator.of(context).pushAndRemoveUntil(
-                                MaterialPageRoute(
-                                  builder: (context) => SignUpScreen(),
-                                ),
-                                (route) => false,
-                              );
+                              await FirebaseAuth.instance.signOut();
                             },
                             style: ButtonStyle(
                               foregroundColor: WidgetStatePropertyAll<Color>(
