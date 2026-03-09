@@ -160,7 +160,16 @@ class _ChatScreenState extends State<ChatScreen> {
     final notifyName = isOwner
         ? "ownerNotificationCount"
         : "guestNotificationCount";
-    FirebaseDatabase.instance.ref("rooms/$roomId/$notifyName").set(0);
+    FirebaseDatabase.instance.ref("rooms/$roomId/$notifyName").set(0).onError((
+      error,
+      stackTrace,
+    ) {
+      if (error is FirebaseException && error.code == "permission-denied") {
+        return;
+      } else if (error != null) {
+        throw error;
+      }
+    });
     closeRoom(roomId);
     super.dispose();
   }
@@ -216,7 +225,9 @@ class _ChatScreenState extends State<ChatScreen> {
         });
 
     if (!ratingTransaction.committed) return false;
-
+    for (final sub in _subscriptions) {
+      await sub.cancel();
+    }
     Map<String, Object?> dbUpdates = {};
     dbUpdates["users/$userID/roomCount"] = ServerValue.increment(-1);
     dbUpdates["users/$userID/rooms/$roomId"] = null;
@@ -370,11 +381,17 @@ class _ChatScreenState extends State<ChatScreen> {
                             }
                           }
                         } else {
+                          for (final sub in _subscriptions) {
+                            await sub.cancel();
+                          }
                           Map<String, Object?> dbUpdates = {};
                           dbUpdates["users/$userID/roomCount"] =
                               ServerValue.increment(-1);
                           dbUpdates["users/$userID/rooms/$roomId"] = null;
                           dbUpdates["rooms/$roomId/"] = null;
+                          dbUpdates["emptyRooms/${widget.rooms.language.value}/${widget.rooms.category.value}/$roomId"] =
+                              null;
+
                           try {
                             await FirebaseDatabase.instance.ref().update(
                               dbUpdates,
