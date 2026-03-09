@@ -20,7 +20,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final categoryList = CategoryList();
-  bool listChanged = false;
+  String selectedLanguage = Languages.english.value;
+  bool languageChanged = false;
 
   final List<Room> rooms = [];
   final Map<Categories, int> lastTime = {};
@@ -51,7 +52,8 @@ class _HomeScreenState extends State<HomeScreen> {
       dbUpdates["users/${currentUser.uid}/roomCount"] = ServerValue.increment(
         1,
       );
-      dbUpdates["categories/${selectedRoom.category.value}/$roomId"] = null;
+      dbUpdates["emptyRooms/$selectedLanguage/${selectedRoom.category.value}/$roomId"] =
+          null;
       FirebaseDatabase.instance.ref().update(dbUpdates);
       // Room bilgilerini al ve chat ekranına yönlendir
       rooms.removeWhere((element) {
@@ -81,7 +83,16 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void applyCategories() async {
+    if (selectedLanguage == "" || categoryList.categories.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("You must choose language and at least 1 category"),
+        ),
+      );
+      return;
+    }
     categoryList.listChanged = false;
+    languageChanged = false;
     rooms.clear();
     lastTime.clear();
     await loadRooms();
@@ -89,10 +100,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
   bool isLoading = false;
   Future<void> loadRooms() async {
-    print("load'a girdi");
     if (isLoading) return;
     isLoading = true;
-    final categoriesDb = FirebaseDatabase.instance.ref("categories");
+    final categoriesDb = FirebaseDatabase.instance.ref(
+      "emptyRooms/$selectedLanguage",
+    );
     if (categoryList.categories.isEmpty) {
       isLoading = false;
       setState(() {});
@@ -217,10 +229,27 @@ class _HomeScreenState extends State<HomeScreen> {
                   ],
                 ),
               ),
+              SizedBox(height: 5),
+              DropdownMenu(
+                width: 95,
+                initialSelection: Languages.english.value,
+
+                onSelected: (value) {
+                  selectedLanguage = value ?? "";
+                  languageChanged = true;
+                },
+
+                dropdownMenuEntries: Languages.values.map((language) {
+                  return DropdownMenuEntry(
+                    value: language.value,
+                    label: language.value,
+                  );
+                }).toList(),
+              ),
               SizedBox(height: 12),
               ElevatedButton(
                 onPressed: () {
-                  if (categoryList.listChanged) {
+                  if (categoryList.listChanged || languageChanged) {
                     applyCategories();
                   }
                 },
