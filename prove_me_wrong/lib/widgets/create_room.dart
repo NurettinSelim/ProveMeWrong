@@ -13,7 +13,7 @@ class CreateRoom extends StatefulWidget {
 }
 
 class _CreateRoomState extends State<CreateRoom> {
-  String? selectedLanguage;
+  String? selectedLanguage = Languages.english.value;
   String? selectedCategory;
   final titleController = TextEditingController();
 
@@ -67,7 +67,7 @@ class _CreateRoomState extends State<CreateRoom> {
       dbUpdates["users/${currentUser.uid}/roomCount"] =
           (roomCountSnap.value as int) + 1;
 
-      dbUpdates["categories/$selectedCategory/$roomKey"] = {
+      dbUpdates["emptyRooms/$selectedLanguage/$selectedCategory/$roomKey"] = {
         "timeStamp": ServerValue.timestamp,
       };
 
@@ -224,10 +224,11 @@ class _CreateRoomState extends State<CreateRoom> {
                     ),
                     SizedBox(width: 15),
                     Expanded(
-                      child: DropdownButtonFormField<Languages>(
+                      child: DropdownButtonFormField(
+                        initialValue: Languages.english.value,
                         items: Languages.values.map((lang) {
-                          return DropdownMenuItem<Languages>(
-                            value: lang,
+                          return DropdownMenuItem(
+                            value: lang.value,
                             child: Text(
                               lang.value,
                               style: TextStyle(color: Colors.black),
@@ -236,14 +237,9 @@ class _CreateRoomState extends State<CreateRoom> {
                         }).toList(),
                         onChanged: (value) {
                           setState(() {
-                            selectedLanguage = value!.value;
+                            selectedLanguage = value ?? "";
                           });
                         },
-                        value: selectedLanguage.toString() != "null"
-                            ? Languages.values.firstWhere(
-                                (lang) => lang.value == selectedLanguage,
-                              )
-                            : null,
 
                         decoration: InputDecoration(
                           isDense: true,
