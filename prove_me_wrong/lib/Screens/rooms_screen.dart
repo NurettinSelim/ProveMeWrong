@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
@@ -8,8 +9,6 @@ import 'package:prove_me_wrong/core/data/language_data.dart';
 import 'package:prove_me_wrong/core/data/room_data.dart';
 import 'package:prove_me_wrong/core/theme/app_theme.dart';
 import 'package:prove_me_wrong/widgets/room_card.dart';
-import 'package:prove_me_wrong/Screens/sign_up.dart';
-import 'package:prove_me_wrong/Screens/home_screen.dart';
 
 class RoomAndNotification {
   final Room room;
@@ -241,14 +240,23 @@ class _RoomsScreenState extends State<RoomsScreen> {
                             .ref("users/${currentUser!.uid}/rating/total")
                             .onValue,
                         builder: (context, snapshot) {
-                          if (!snapshot.hasData) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
                             return CircularProgressIndicator();
                           }
 
-                          final data = snapshot.data!.snapshot.value;
+                          final data = snapshot.data?.snapshot.value;
 
-                          if (data == null) return SizedBox.shrink();
-
+                          if (data == null) {
+                            return Text(
+                              "0",
+                              style: TextStyle(
+                                fontFamily: "Azer29LT",
+                                fontSize: 18,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            );
+                          }
                           return Text(
                             data.toString(),
                             style: TextStyle(
@@ -265,13 +273,23 @@ class _RoomsScreenState extends State<RoomsScreen> {
                             .ref("users/${currentUser!.uid}/rating/total")
                             .onValue,
                         builder: (context, snapshot) {
-                          if (!snapshot.hasData) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
                             return CircularProgressIndicator();
                           }
 
-                          final data = snapshot.data!.snapshot.value;
+                          final data = snapshot.data?.snapshot.value;
 
-                          if (data == null) return SizedBox.shrink();
+                          if (data == null) {
+                            return Text(
+                              "0",
+                              style: TextStyle(
+                                fontFamily: "Azer29LT",
+                                fontSize: 18,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            );
+                          }
 
                           return Text(
                             data.toString(),
@@ -392,6 +410,7 @@ class _RoomsScreenState extends State<RoomsScreen> {
                 ),
               ],
             ),
+            SizedBox(height: 100),
           ],
         ),
       ),
