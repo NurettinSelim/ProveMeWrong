@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:prove_me_wrong/Widgets/report.dart';
 import 'package:prove_me_wrong/core/data/hive_functions.dart';
 import 'package:prove_me_wrong/core/data/message_adapter.dart';
 import 'package:prove_me_wrong/core/data/room_data.dart';
@@ -491,9 +492,44 @@ class _ChatScreenState extends State<ChatScreen> {
                               alignment: isMe
                                   ? Alignment.centerRight
                                   : Alignment.centerLeft,
-                              child: ChatBubble(
-                                text: message.message,
-                                isSentByMe: isMe,
+                              child: GestureDetector(
+                                child: ChatBubble(
+                                  text: message.message,
+                                  isSentByMe: isMe,
+                                ),
+                                onLongPressStart: !isMe
+                                    ? (details) async {
+                                        Offset offset = details.globalPosition;
+                                        final selected = await showMenu(
+                                          position: RelativeRect.fromLTRB(
+                                            offset.dx,
+                                            offset.dy,
+                                            offset.dx + 10,
+                                            offset.dy + 10,
+                                          ),
+                                          context: context,
+
+                                          items: [
+                                            PopupMenuItem(
+                                              value: "report",
+                                              child: Text("Report"),
+                                            ),
+                                          ],
+                                        );
+
+                                        if (selected == "report") {
+                                          await showModalBottomSheet(
+                                            context: context,
+                                            builder: (context) => ReportWidget(
+                                              reportedRoomID: roomId,
+                                              reportedUserID: otherUserId,
+                                              reasons:
+                                                  MessageReportReasons.values,
+                                            ),
+                                          );
+                                        }
+                                      }
+                                    : null,
                               ),
                             );
                           },
