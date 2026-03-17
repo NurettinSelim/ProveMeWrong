@@ -113,14 +113,10 @@ Future<String> report(
     reportMap["isMessage"] = false;
   }
   await userDb.child(reportedUserID).child("reports").push().set(reportMap);
-  await userDb.child(reportedUserID).child("reportScore").runTransaction((
-    value,
-  ) {
-    if (value == null) {
-      return Transaction.success(reportScore);
-    }
-    return Transaction.success((value as int) + reportScore);
-  });
+  await userDb
+      .child(reportedUserID)
+      .child("reportScore")
+      .set(ServerValue.increment(reportScore));
 
   await userDb
       .child(FirebaseAuth.instance.currentUser!.uid)
@@ -239,10 +235,11 @@ class _ReportWidgetState extends State<ReportWidget> {
                 messageID: widget.reportedMessageID,
                 title: widget.title,
               );
-
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text(reportMessage)));
+              if (context.mounted) {
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text(reportMessage)));
+              }
             },
             child: Text(
               "Report",
