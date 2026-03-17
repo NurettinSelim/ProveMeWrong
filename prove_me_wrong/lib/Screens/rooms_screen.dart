@@ -462,8 +462,13 @@ class _RoomsScreenState extends State<RoomsScreen> {
                                 ),
 
                                 Text(
-                                  roomAndNotifications[index].notificationCount
-                                      .toString(),
+                                  roomAndNotifications[index]
+                                              .notificationCount >
+                                          99
+                                      ? "99+"
+                                      : roomAndNotifications[index]
+                                            .notificationCount
+                                            .toString(),
                                   style: TextStyle(
                                     fontFamily: "SpaceMono",
                                     color: AppColors.onSecondary,
