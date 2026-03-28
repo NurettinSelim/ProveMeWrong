@@ -230,53 +230,73 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               SizedBox(height: 5),
-              DropdownMenu(
-                width: 95,
-                initialSelection: Languages.english.value,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                spacing: 12,
+                children: [
+                  DropdownMenu(
+                    width: 95,
+                    initialSelection: Languages.english.value,
+                    textStyle: TextStyle(
+                      fontFamily: "Azer29LT",
+                      color: AppColors.primary,
+                      fontSize: 16,
+                    ),
+                    menuStyle: MenuStyle(
+                      backgroundColor: WidgetStatePropertyAll<Color>(
+                        AppColors.onPrimary,
+                      ),
+                      minimumSize: WidgetStatePropertyAll<Size>(Size(0, 40)),
+                    ),
 
-                onSelected: (value) {
-                  selectedLanguage = value ?? "";
-                  languageChanged = true;
-                },
+                    onSelected: (value) {
+                      selectedLanguage = value ?? "";
+                      languageChanged = true;
+                    },
 
-                dropdownMenuEntries: Languages.values.map((language) {
-                  return DropdownMenuEntry(
-                    value: language.value,
-                    label: language.value,
-                  );
-                }).toList(),
-              ),
-              SizedBox(height: 12),
-              ElevatedButton(
-                onPressed: () {
-                  if (categoryList.listChanged || languageChanged) {
-                    applyCategories();
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.secondary,
-
-                  minimumSize: Size(0, 40),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadiusGeometry.circular(6),
-                    side: BorderSide(color: Colors.black),
+                    dropdownMenuEntries: Languages.values.map((language) {
+                      return DropdownMenuEntry(
+                        value: language.value,
+                        label: language.value,
+                      );
+                    }).toList(),
                   ),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Icon(Icons.autorenew_rounded, color: AppColors.onSecondary),
-                    SizedBox(width: 2),
-                    Text(
-                      "APPLY",
-                      style: TextStyle(
-                        color: AppColors.onSecondary,
-                        fontFamily: "SpaceMono",
+
+                  ElevatedButton(
+                    onPressed: () {
+                      if (categoryList.listChanged || languageChanged) {
+                        applyCategories();
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.secondary,
+
+                      minimumSize: Size(0, 40),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadiusGeometry.circular(6),
+                        side: BorderSide(color: Colors.black),
                       ),
                     ),
-                  ],
-                ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Icon(
+                          Icons.autorenew_rounded,
+                          color: AppColors.onSecondary,
+                        ),
+                        SizedBox(width: 2),
+                        Text(
+                          "APPLY",
+                          style: TextStyle(
+                            color: AppColors.onSecondary,
+                            fontFamily: "SpaceMono",
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
               SizedBox(height: 12),
               ...rooms.map(

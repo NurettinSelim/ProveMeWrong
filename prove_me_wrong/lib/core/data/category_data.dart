@@ -1,12 +1,24 @@
 enum Categories {
-  economy("Economy"),
-  politics("Politics"),
-  games("Games"),
-  musics("Musics"),
-  history("History"),
+  technology("Artifical Intelligent and Technology"),
   books("Books"),
-  others("Others"),
-  foods("Foods");
+  culture("Society and Culture"),
+  economy("Economy"),
+  entertainment("Entertainment"),
+  environment("Environment"),
+  ethics("Ethics"),
+  feminizm("Feminizm and LGBTQ+ Rights"),
+  foods("Foods"),
+  games("Games"),
+  geopolitics("Geopolitics"),
+  goverment("Goverment"),
+  history("History"),
+  ideology("Ideology"),
+  law("Law and Human Rights"),
+  musics("Musics"),
+  philosophy("Philosophy"),
+  politics("Politics"),
+  sports("Sports"),
+  others("Others");
 
   final String value;
   const Categories(this.value);
