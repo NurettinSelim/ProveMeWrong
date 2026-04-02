@@ -236,7 +236,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   Expanded(
                     child: DropdownMenu(
-                      width: 95,
+                      width: 100,
                       initialSelection: Languages.english.value,
                       textStyle: TextStyle(
                         fontFamily: "Azer29LT",

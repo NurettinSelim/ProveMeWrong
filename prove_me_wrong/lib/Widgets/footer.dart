@@ -62,6 +62,7 @@ class _FooterState extends ConsumerState<Footer> {
               if (item["isModal"] == true) {
                 // Modal açılmadan önce mevcut index'i koru
                 showModalBottomSheet(
+                  isScrollControlled: true,
                   context: context,
                   builder: (context) => CreateRoom(),
                 ).then((_) {

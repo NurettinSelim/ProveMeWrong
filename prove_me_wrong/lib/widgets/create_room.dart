@@ -98,206 +98,222 @@ class _CreateRoomState extends State<CreateRoom> {
         color: AppColors.tertiary,
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 40,
-            height: 4,
-            margin: EdgeInsets.only(bottom: 20),
-            decoration: BoxDecoration(
-              color: Colors.grey[400],
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
-          Container(
-            padding: EdgeInsets.all(16),
-            width: double.infinity,
-            height: 150,
-            decoration: BoxDecoration(
-              shape: BoxShape.rectangle,
-              color: AppColors.onPrimary,
-              borderRadius: BorderRadius.circular(25),
-              border: Border.all(color: Colors.black, width: 2),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  children: [
-                    Text(
-                      "TITLE:",
-                      style: TextStyle(fontSize: 18, fontFamily: "SpaceMono"),
-                    ),
-                    SizedBox(width: 15),
-                    Expanded(
-                      child: TextField(
-                        controller: titleController,
-
-                        decoration: InputDecoration(
-                          isDense: true,
-                          filled: true,
-                          fillColor: AppColors.tertiary,
-                          contentPadding: EdgeInsets.all(8),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(20),
-                            borderSide: BorderSide(
-                              color: Colors.black,
-                              width: 2,
-                            ),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(20),
-                            borderSide: BorderSide(
-                              color: Colors.black,
-                              width: 2,
-                            ),
-                          ),
-                        ),
-                        style: TextStyle(color: Colors.black, fontSize: 16),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 8),
-                Row(
-                  children: [
-                    Text(
-                      "CATEGORY:",
-                      style: TextStyle(fontSize: 18, fontFamily: "SpaceMono"),
-                    ),
-                    SizedBox(width: 15),
-                    Expanded(
-                      child: DropdownButtonFormField<Categories>(
-                        items: Categories.values.map((cat) {
-                          return DropdownMenuItem<Categories>(
-                            value: cat,
-                            child: Text(
-                              cat.value,
-                              style: TextStyle(color: Colors.black),
-                            ),
-                          );
-                        }).toList(),
-                        onChanged: (value) {
-                          setState(() {
-                            selectedCategory = value!.value;
-                          });
-                        },
-                        value: selectedCategory.toString() != "null"
-                            ? Categories.values.firstWhere(
-                                (cat) => cat.value == selectedCategory,
-                              )
-                            : null,
-
-                        decoration: InputDecoration(
-                          isDense: true,
-                          filled: true,
-                          fillColor: AppColors.tertiary,
-                          contentPadding: EdgeInsets.all(8),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(20),
-                            borderSide: BorderSide(
-                              color: Colors.black,
-                              width: 2,
-                            ),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(20),
-                            borderSide: BorderSide(
-                              color: Colors.black,
-                              width: 2,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 8),
-                Row(
-                  children: [
-                    Text(
-                      "LANGUAGE:",
-                      style: TextStyle(fontSize: 18, fontFamily: "SpaceMono"),
-                    ),
-                    SizedBox(width: 15),
-                    Expanded(
-                      child: DropdownButtonFormField(
-                        initialValue: Languages.english.value,
-                        items: Languages.values.map((lang) {
-                          return DropdownMenuItem(
-                            value: lang.value,
-                            child: Text(
-                              lang.value,
-                              style: TextStyle(color: Colors.black),
-                            ),
-                          );
-                        }).toList(),
-                        onChanged: (value) {
-                          setState(() {
-                            selectedLanguage = value ?? "";
-                          });
-                        },
-
-                        decoration: InputDecoration(
-                          isDense: true,
-                          filled: true,
-                          fillColor: AppColors.tertiary,
-                          contentPadding: EdgeInsets.all(8),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(20),
-                            borderSide: BorderSide(
-                              color: Colors.black,
-                              width: 2,
-                            ),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(20),
-                            borderSide: BorderSide(
-                              color: Colors.black,
-                              width: 2,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          SizedBox(height: 16),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.onPrimary,
-              padding: EdgeInsets.all(20),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-                side: BorderSide(color: Colors.black, width: 2),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              margin: EdgeInsets.only(bottom: 20),
+              decoration: BoxDecoration(
+                color: Colors.grey[400],
+                borderRadius: BorderRadius.circular(2),
               ),
             ),
-            onPressed: () async {
-              final (bool, String) result = await createRoom();
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text(result.$2)));
-              if (context.mounted) {
-                Navigator.of(context).pop();
-              }
-            },
-            child: Text(
-              "CREATE ROOM",
-              style: TextStyle(
-                fontFamily: "SpaceMono",
-                color: Colors.black,
-                fontSize: 20,
+            SingleChildScrollView(
+              child: Container(
+                padding: EdgeInsets.all(16),
+                width: double.infinity,
+                height: 180,
+                decoration: BoxDecoration(
+                  shape: BoxShape.rectangle,
+                  color: AppColors.onPrimary,
+                  borderRadius: BorderRadius.circular(25),
+                  border: Border.all(color: Colors.black, width: 2),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          "TITLE:",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontFamily: "SpaceMono",
+                          ),
+                        ),
+                        SizedBox(width: 15),
+                        Expanded(
+                          child: TextField(
+                            controller: titleController,
+
+                            decoration: InputDecoration(
+                              isDense: true,
+                              filled: true,
+                              fillColor: AppColors.tertiary,
+                              contentPadding: EdgeInsets.all(8),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(20),
+                                borderSide: BorderSide(
+                                  color: Colors.black,
+                                  width: 2,
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(20),
+                                borderSide: BorderSide(
+                                  color: Colors.black,
+                                  width: 2,
+                                ),
+                              ),
+                            ),
+                            style: TextStyle(color: Colors.black, fontSize: 16),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Text(
+                          "CATEGORY:",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontFamily: "SpaceMono",
+                          ),
+                        ),
+                        SizedBox(width: 15),
+                        Expanded(
+                          child: DropdownButtonFormField<Categories>(
+                            isExpanded: true,
+                            items: Categories.values.map((cat) {
+                              return DropdownMenuItem<Categories>(
+                                value: cat,
+                                child: Text(
+                                  cat.value,
+                                  style: TextStyle(color: Colors.black),
+                                ),
+                              );
+                            }).toList(),
+                            onChanged: (value) {
+                              setState(() {
+                                selectedCategory = value!.value;
+                              });
+                            },
+                            value: selectedCategory.toString() != "null"
+                                ? Categories.values.firstWhere(
+                                    (cat) => cat.value == selectedCategory,
+                                  )
+                                : null,
+
+                            decoration: InputDecoration(
+                              isDense: true,
+                              filled: true,
+                              fillColor: AppColors.tertiary,
+                              contentPadding: EdgeInsets.all(8),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(20),
+                                borderSide: BorderSide(
+                                  color: Colors.black,
+                                  width: 2,
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(20),
+                                borderSide: BorderSide(
+                                  color: Colors.black,
+                                  width: 2,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Text(
+                          "LANGUAGE:",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontFamily: "SpaceMono",
+                          ),
+                        ),
+                        SizedBox(width: 15),
+                        Expanded(
+                          child: DropdownButtonFormField(
+                            isExpanded: true,
+
+                            initialValue: Languages.english.value,
+                            items: Languages.values.map((lang) {
+                              return DropdownMenuItem(
+                                value: lang.value,
+                                child: Text(
+                                  lang.value,
+                                  style: TextStyle(color: Colors.black),
+                                ),
+                              );
+                            }).toList(),
+                            onChanged: (value) {
+                              setState(() {
+                                selectedLanguage = value ?? "";
+                              });
+                            },
+
+                            decoration: InputDecoration(
+                              isDense: true,
+                              filled: true,
+                              fillColor: AppColors.tertiary,
+                              contentPadding: EdgeInsets.all(8),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(20),
+                                borderSide: BorderSide(
+                                  color: Colors.black,
+                                  width: 2,
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(20),
+                                borderSide: BorderSide(
+                                  color: Colors.black,
+                                  width: 2,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-          SizedBox(height: 32),
-        ],
+            SizedBox(height: 16),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.onPrimary,
+                padding: EdgeInsets.all(20),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  side: BorderSide(color: Colors.black, width: 2),
+                ),
+              ),
+              onPressed: () async {
+                final (bool, String) result = await createRoom();
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text(result.$2)));
+                if (context.mounted) {
+                  Navigator.of(context).pop();
+                }
+              },
+              child: Text(
+                "CREATE ROOM",
+                style: TextStyle(
+                  fontFamily: "SpaceMono",
+                  color: Colors.black,
+                  fontSize: 20,
+                ),
+              ),
+            ),
+            SizedBox(height: 32),
+          ],
+        ),
       ),
     );
   }

@@ -142,36 +142,40 @@ class _RoomsScreenState extends State<RoomsScreen> {
         child: ListView(
           padding: EdgeInsets.all(16),
           children: [
-            DrawerHeader(
-              child: Container(
-                //padding: EdgeInsets.fromLTRB(16, 0, 16, 0),
-                alignment: Alignment.bottomLeft,
-                //width: double.infinity,
-                height: 15,
-                //decoration: BoxDecoration(shape: BoxShape.rectangle),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "ACCOUNT",
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontFamily: "SpaceMono",
-                        fontSize: 24,
-                        //fontWeight: FontWeight.bold,
+            SizedBox(
+              height: 150,
+              child: DrawerHeader(
+                decoration: BoxDecoration(),
+                child: Container(
+                  //padding: EdgeInsets.fromLTRB(16, 0, 16, 0),
+                  alignment: Alignment.bottomLeft,
+                  //width: double.infinity,
+                  //height: 4,
+                  //decoration: BoxDecoration(shape: BoxShape.rectangle),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "ACCOUNT",
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontFamily: "SpaceMono",
+                          fontSize: 24,
+                          //fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                    Text(
-                      "INFO",
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontFamily: "SpaceMono",
-                        fontSize: 24,
-                        //fontWeight: FontWeight.bold,
+                      Text(
+                        "INFO",
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontFamily: "SpaceMono",
+                          fontSize: 24,
+                          //fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
