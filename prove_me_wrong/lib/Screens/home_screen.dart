@@ -234,32 +234,34 @@ class _HomeScreenState extends State<HomeScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 spacing: 12,
                 children: [
-                  DropdownMenu(
-                    width: 95,
-                    initialSelection: Languages.english.value,
-                    textStyle: TextStyle(
-                      fontFamily: "Azer29LT",
-                      color: AppColors.primary,
-                      fontSize: 16,
-                    ),
-                    menuStyle: MenuStyle(
-                      backgroundColor: WidgetStatePropertyAll<Color>(
-                        AppColors.onPrimary,
+                  Expanded(
+                    child: DropdownMenu(
+                      width: 95,
+                      initialSelection: Languages.english.value,
+                      textStyle: TextStyle(
+                        fontFamily: "Azer29LT",
+                        color: AppColors.primary,
+                        fontSize: 16,
                       ),
-                      minimumSize: WidgetStatePropertyAll<Size>(Size(0, 40)),
+                      menuStyle: MenuStyle(
+                        backgroundColor: WidgetStatePropertyAll<Color>(
+                          AppColors.onPrimary,
+                        ),
+                        minimumSize: WidgetStatePropertyAll<Size>(Size(0, 40)),
+                      ),
+
+                      onSelected: (value) {
+                        selectedLanguage = value ?? "";
+                        languageChanged = true;
+                      },
+
+                      dropdownMenuEntries: Languages.values.map((language) {
+                        return DropdownMenuEntry(
+                          value: language.value,
+                          label: language.value,
+                        );
+                      }).toList(),
                     ),
-
-                    onSelected: (value) {
-                      selectedLanguage = value ?? "";
-                      languageChanged = true;
-                    },
-
-                    dropdownMenuEntries: Languages.values.map((language) {
-                      return DropdownMenuEntry(
-                        value: language.value,
-                        label: language.value,
-                      );
-                    }).toList(),
                   ),
 
                   ElevatedButton(

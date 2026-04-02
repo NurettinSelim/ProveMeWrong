@@ -1,5 +1,4 @@
 enum Categories {
-  technology("Artifical Intelligent and Technology"),
   books("Books"),
   culture("Society and Culture"),
   economy("Economy"),
@@ -18,6 +17,7 @@ enum Categories {
   philosophy("Philosophy"),
   politics("Politics"),
   sports("Sports"),
+  technology("Technology"),
   others("Others");
 
   final String value;

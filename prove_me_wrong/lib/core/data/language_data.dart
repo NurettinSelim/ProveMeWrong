@@ -2,7 +2,8 @@ enum Languages {
   german("de"),
   france("fr"),
   english("eng"),
-  turkish("tr");
+  turkish("tr"),
+  lole("loleloleloleloleedenemeee");
 
   final String value;
   const Languages(this.value);

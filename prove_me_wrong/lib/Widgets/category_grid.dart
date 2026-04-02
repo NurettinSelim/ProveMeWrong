@@ -19,6 +19,7 @@ class _CategoryGridState extends State<CategoryGrid> {
         crossAxisSpacing: 12,
         mainAxisSpacing: 12,
         childAspectRatio: 3,
+        mainAxisExtent: 40,
       ),
       itemCount: Categories.values.length,
       itemBuilder: (context, index) {
@@ -36,6 +37,7 @@ class _CategoryGridState extends State<CategoryGrid> {
             setState(() {});
           },
           child: Container(
+            alignment: Alignment.center,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(6),
               border: Border.all(color: AppColors.secondary),
@@ -44,6 +46,7 @@ class _CategoryGridState extends State<CategoryGrid> {
             child: Text(
               Categories.values[index].value,
               textAlign: TextAlign.center,
+              style: TextStyle(fontFamily: "Azer29LT"),
             ),
           ),
         );
