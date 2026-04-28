@@ -21,6 +21,7 @@ class _CategoryGridState extends State<CategoryGrid> {
         childAspectRatio: 3,
         mainAxisExtent: 40,
       ),
+      padding: EdgeInsets.zero,
       itemCount: Categories.values.length,
       itemBuilder: (context, index) {
         bool isSelected = widget.categoryList.categories.contains(
