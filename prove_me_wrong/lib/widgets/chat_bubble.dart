@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart ';
+import 'package:flutter/material.dart';
 import 'package:prove_me_wrong/core/theme/app_theme.dart';
 import 'package:prove_me_wrong/widgets/bubble_paint.dart';
 
